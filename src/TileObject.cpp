@@ -6,4 +6,13 @@ TileObject::TileObject()
     this->boardController = BoardController::Get();
 }
 
-TileObject::~TileObject() = default;
+void TileObject::Start()
+{
+
+}
+
+void TileObject::SetOccupiedTile(Tile* tile)
+{
+    occupiedTile = tile;
+    position = occupiedTile->gridPosition;
+}

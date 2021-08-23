@@ -5,13 +5,13 @@
 class BoardController 
 {
 public:
-    virtual ~BoardController();
+    virtual ~BoardController() = default;
     static BoardController* Get();
-    static void Initialize(TileMap tileMap);
+    static void Initialize(TileMap* tileMap);
 private:
     BoardController();
     static BoardController* current;
-    TileMap tileMap;
+    TileMap* tileMap;
 };
 
 

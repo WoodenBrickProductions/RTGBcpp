@@ -1,22 +1,45 @@
 #ifndef TILE_HPP
 #define TILE_HPP
 
-class GameObject;
+#include<GameObject.hpp>
+
+class TileObject;
 struct GridPosition {
     int x;
     int y;
+
+    char* ToString()
+    {
+        return (char*) (x + " " + y);        
+    }
 };
 
-class Tile 
+class Tile : public GameObject
 {
 public:
     Tile() {}
-    Tile(int x, int y, GameObject* occupiedObject);
-    Tile(GridPosition gridPosition, GameObject* occupiedObject);
-    virtual ~Tile();
-private:
+    // Tile(Tile& tile);
+    Tile(GridPosition gridPosition, TileObject* occupiedObject);
+    virtual ~Tile() = default;
+    
+    bool staticTile;
     GridPosition gridPosition;
-    GameObject* occupiedObject;
+    
+    void Start() override;
+    void Draw() override;    
+    
+    void SetSolidModel(Model* model) {solidModel = model;}
+    void SetPitModel(Model* model) {pitModel = model;}
+    TileObject* GetOccupiedTileObject() {return occupiedObject;}
+    bool SetTileObject(TileObject* occupiedObject);
+    void ClearTileObject() {occupiedObject = nullptr;}
+    bool IsStaticTile() {return staticTile;}
+    void SetStaticTile(bool isStatic);
+
+private:
+    TileObject* occupiedObject;
+    Model* solidModel;
+    Model* pitModel;
 };
 
 

@@ -16,8 +16,9 @@ BoardController* BoardController::Get()
     return current;
 }
 
-void BoardController::Initialize(TileMap tileMap)
+void BoardController::Initialize(TileMap* tileMap)
 {
+    printf("initialising \n");
     Get()->tileMap = tileMap;
+    printf("init done \n");
 }
-BoardController::~BoardController() = default;

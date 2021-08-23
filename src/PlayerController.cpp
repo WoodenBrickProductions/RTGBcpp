@@ -10,9 +10,13 @@ void PlayerController::SetTempLogger(TraceLogCallback callback)
     this->callback = callback;
 }
 
+void PlayerController::Start()
+{
+    
+}
+
 void PlayerController::Update()
 {
-    callback(0, "This is running in Player Update", nullptr);
     int movex = 0, movez = 0;
     if (IsKeyDown(KEY_A))
     {

@@ -57,43 +57,65 @@ void LogCustom(int msgType, const char *text, va_list args)
 int main() 
 {
     SetTraceLogCallback(LogCustom);
-    LogCustom(0, "Logger is working correctly", nullptr);
-    TileMap tempTileMap;
+    LogCustom(0, "Logger is working correctly \n", nullptr);
+    TileMap* tileMap = new TileMap(GRIDX, GRIDY);
+    printf("ttayas \n");
+    Tile baseTile;
+    TileObject wall; 
     BoardController* boardController = BoardController::Get();
-    BoardController::Initialize(tempTileMap);
+    printf("ttaya \n");
+    std::vector<GameObject*> gameObjects;
     
+    printf("ttay \n");
+
+    InitWindow(SCREENWIDTH, SCREENHEIGHT, "raylib"); 
     // Initialization
     //--------------------------------------------------------------------------------------
-    Tile tilemap[GRIDX][GRIDY];
-    for(int i = 0; i < GRIDX; i++)
-    {
-        for (int j = 0; j < GRIDY; j++)
-        {
-            tilemap[i][j] = Tile({i,j}, nullptr);
-        }
-    }
 
 
-    InitWindow(SCREENWIDTH, SCREENHEIGHT, "raylib"); // Method in core.c, why is it not static?
-
+    // Camera creation
     Camera camera = { 0 };
     camera.position = { 10.0f, 10.0f, 8.0f };
     camera.target = { 0.0f, 0.0f, 0.0f };
     camera.up = { 0.0f, 1.0f, 0.0f };
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
-    Model cube = LoadModel("resources/Models/Cube.obj");
+    printf("\n\n\n\n");
+    Model cube = LoadModel("../resources/Models/CubeTriangulated.obj");
+    Model smallCube = LoadModel("../resources/Models/SmallCubeTesting.obj");
+    Model smallWall = LoadModel("../resources/Models/SmallWall.obj");
+    Texture2D placeHolderTexture = LoadTexture("../resources/Textures/Placeholder256x.png"); 
+    Model pit = cube;
+    SetMaterialTexture(&cube.materials[0], MAP_DIFFUSE, placeHolderTexture);
+    printf("\n\n\n\n");
 
+    baseTile.GOLoadModel(cube);
+    baseTile.transform.scale.y = 0.1f;
+    baseTile.baseColor = RED;
+    wall.baseColor = BROWN;
+    baseTile.SetPitModel(&smallCube);
+    baseTile.SetSolidModel(&cube);
+    
+    wall.GOLoadModel(cube);
+    BoardController::Initialize(tileMap);
+    tileMap->GenerateTileMap(&baseTile, &wall);
+    printf("\nFinished generating tileMap\n");
+    
+    printf("TESTING\n");
+
+    // Player creation
     PlayerController* player = new PlayerController();
     player->SetTempLogger(LogCustom);
+    player->GOLoadModel(cube);
+    player->baseColor = BLUE;
     // GameObject** gameObjects = new GameObject*; allocation for 1 pointer
     // GameObject** gameObjects = new GameObject*[10]; with allocation for 10 pointers
     // GameObject* gameObjects[10]; allocation for 10 pointers
-    std::vector<GameObject*> gameObjects;
     gameObjects.push_back(player);
     // object[2] == *(object + 2*sizeof(object))
     // object[2] = *(object+2) = *(2+object) = 2[object]
-    gameObjects[0]->GOLoadModel(cube);
+
+    printf("TileMap has children %d AND ",tileMap->GetChildCount());
     SetCameraMode(camera, CAMERA_FREE);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -108,7 +130,7 @@ int main()
         //----------------------------------------------------------------------------------
 
         
-
+        tileMap->Update();
         for(unsigned int i = 0; i < gameObjects.size(); i++)
         {
             gameObjects[i]->Update();
@@ -121,6 +143,9 @@ int main()
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
+                // printf("Trying to draw tilemap \n");
+                tileMap->Draw();
+                // printf("Finished drawing tilemap \n");
                 for(unsigned int i = 0; i < gameObjects.size(); i++)
                 {
                     gameObjects[i]->Draw();
@@ -138,6 +163,7 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    UnloadModel(cube);    
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

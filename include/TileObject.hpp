@@ -1,18 +1,20 @@
 #ifndef TILEOBJECT_HPP
 #define TILEOBJECT_HPP
 
-#include "GameObject.hpp"
 #include "Tile.hpp"
-
 class BoardController;
 class TileObject : public GameObject
 {
 public:
     TileObject();
-    virtual ~TileObject();
+    virtual ~TileObject() = default;
+    void Start() override;
+    bool staticObject;
+    Tile* GetOccupiedTile() {return occupiedTile;}
+    void SetOccupiedTile(Tile* tile);
+
 
 protected:
-    bool staticObject;
     Tile* occupiedTile;
     GridPosition position;
     BoardController* boardController;

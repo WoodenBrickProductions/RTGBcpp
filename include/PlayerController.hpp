@@ -8,6 +8,7 @@ class PlayerController : public TileObject
 public:
     PlayerController();
     virtual ~PlayerController() = default;
+    void Start() override;
     void Update() override;
     void SetTempLogger(TraceLogCallback callback);
 private:
