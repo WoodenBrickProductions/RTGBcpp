@@ -14,24 +14,25 @@ public:
     virtual ~GameObject() = default;
     
     std::string name;
+    std::string tag;
     Transform transform;
+    Color baseColor;
     
     virtual void Awake();
     virtual void Start();
     virtual void Update();
     virtual void Draw();
-    virtual const char* ToString();
+    virtual std::string ToString();
     void GOLoadModel(Model& model);
     void SetActive(bool active);
-    void SetChild(int index, GameObject* object);
-    void AddChild(GameObject* object);
-    void RemoveChild(GameObject* object);
+    void SetChild(int index, GameObject& object);
+    void AddChild(GameObject& object);
+    void RemoveChild(GameObject& object);
     int GetChildCount() {return children.size();}
-    void SetParent(GameObject* object);
+    void SetParent(GameObject& object);
     GameObject* GetParent() {return parent;}
-    GameObject* GetChild(int index);
+    GameObject* GetChild(size_t index);
     //Should be moved to draw component
-    Color baseColor;
 protected:
     GameObject* parent;
 

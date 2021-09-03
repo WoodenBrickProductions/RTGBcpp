@@ -23,41 +23,22 @@
 #include "BoardController.hpp"
 #include "Tile.hpp"
 #include "PlayerController.hpp"
+#include "CustomLogger.hpp"
 #include <stdio.h>
 #include <time.h>
 #include <vector>
 
+const auto LOG_CALLBACK = LogCustom;
+
 const int SCREENWIDTH = 800;
 const int SCREENHEIGHT = 450;
-const int GRIDX = 100;
-const int GRIDY = 100;
-
-void LogCustom(int msgType, const char *text, va_list args)
-{
-    char timeStr[64] = { 0 };
-    time_t now = time(NULL);
-    struct tm *tm_info = localtime(&now);
-
-    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", tm_info);
-    printf("[%s] ", timeStr);
-
-    switch (msgType)
-    {
-        case LOG_INFO: printf("[INFO] : "); break;
-        case LOG_ERROR: printf("[ERROR]: "); break;
-        case LOG_WARNING: printf("[WARN] : "); break;
-        case LOG_DEBUG: printf("[DEBUG]: "); break;
-        default: break;
-    }
-
-    vprintf(text, args);
-    printf("\n");
-}
+const int GRIDX = 20;
+const int GRIDY = 20;
 
 int main() 
 {
-    SetTraceLogCallback(LogCustom);
-    LogCustom(0, "Logger is working correctly \n", nullptr);
+    SetTraceLogCallback(LOG_CALLBACK);
+    LOG_CALLBACK(0, "Logger is working correctly \n", nullptr);
     TileMap* tileMap = new TileMap(GRIDX, GRIDY);
     printf("ttayas \n");
     Tile baseTile;
@@ -105,7 +86,6 @@ int main()
 
     // Player creation
     PlayerController* player = new PlayerController();
-    player->SetTempLogger(LogCustom);
     player->GOLoadModel(cube);
     player->baseColor = BLUE;
     // GameObject** gameObjects = new GameObject*; allocation for 1 pointer
@@ -116,10 +96,18 @@ int main()
     // object[2] = *(object+2) = *(2+object) = 2[object]
 
     printf("TileMap has children %d AND ",tileMap->GetChildCount());
+    printf("STARTING ------- \n");
+    for(auto gameObject : gameObjects)
+    {
+        gameObject->Start();
+    }
     SetCameraMode(camera, CAMERA_FREE);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
+
+
+    printf("Player position: %f %f", player->transform.translation.x, player->transform.translation.z);
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -129,7 +117,6 @@ int main()
         UpdateCamera(&camera);
         //----------------------------------------------------------------------------------
 
-        
         tileMap->Update();
         for(unsigned int i = 0; i < gameObjects.size(); i++)
         {

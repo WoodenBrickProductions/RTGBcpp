@@ -3,6 +3,7 @@
 #include "external/stb_perlin.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "CustomLogger.hpp"
 
 TileMap::TileMap()
 {
@@ -14,9 +15,13 @@ TileMap::TileMap()
     generateEnemies = false;
     generateRandomSeed = true;
     perlinSeed = 1001;
+    baseTile = nullptr;
+    wallObject = nullptr;
     gridx = 1;
     gridy = 1;
     worldSpacing = 1;
+    tileMatrix = nullptr;
+
     children.push_back(new GameObject("Tiles"));
     children.push_back(new GameObject("Walls"));
     children.push_back(new GameObject("Enemies"));
@@ -43,11 +48,20 @@ TileMap::~TileMap()
 
 void TileMap::InitializeTileMap(int gridx, int gridy)
 {
-    tileMatrix = static_cast<Tile***>(malloc(gridx*sizeof(Tile**)));
-    for(int i = 0; i < gridy; i++)
+    // tileMatrix = static_cast<Tile***>(malloc(gridx*sizeof(Tile**)));
+    // for(int i = 0; i < gridy; i++)
+    // {
+    //     tileMatrix[i] = static_cast<Tile**>(malloc(sizeof(Tile*)*gridy));
+    // }
+
+    // tileMatrix = new Tile*[gridx][gridy];  neveikia
+    tileMatrix = new Tile**[gridx];
+        for(int i = 0; i < gridx; i++)
     {
-        tileMatrix[i] = static_cast<Tile**>(malloc(sizeof(Tile*)*gridy));
+        tileMatrix[i] = new Tile*[gridy]; 
     }
+    
+    // tileMatrix = new Tile*[gridx*gridy];
 }
 
 void TileMap::LoadTileMap()
@@ -61,9 +75,10 @@ void TileMap::GenerateTileMap(Tile* baseTile, TileObject* wallObject)
     printf("Generation is called \n");
     if(tileMatrix != nullptr)
     {
-        printf("tileMatrix is cleared \n");
+        printf("tileMatrix is being cleared \n");
         ClearTileMap();
     }
+    printf("tileMatrix was cleared \n");
     if (generateRandomSeed)
     {
         perlinSeed = GetRandomValue(0,1000);
@@ -75,6 +90,7 @@ void TileMap::GenerateTileMap(Tile* baseTile, TileObject* wallObject)
     InitializeTileMap(gridx, gridy);
     printf("After Initializing tilemap \n");
 
+    int success = 0;
     for (int i = 0; i < gridx; i++)
     {
         for (int j = 0; j < gridy; j++)
@@ -84,12 +100,16 @@ void TileMap::GenerateTileMap(Tile* baseTile, TileObject* wallObject)
             {
                 // Here I should only pass the model component, there is no reason to base off of the whole baseTile;
                 tileMatrix[i][j] = CreateTile(i,j);
+                tileMatrix[i][j]->SetStaticTile(false);
                 if (spawnValue > tileSpawnRate * (1 - wallSpawning))
                 {
                     TileObject* wall = new TileObject(*wallObject);
                     wall->transform.translation = Vector3{transform.translation.x + i * worldSpacing, transform.translation.y + 0,transform.translation.z + j * worldSpacing};
-                    wall->SetParent(this);
-                    InitializePosition(wall);
+                    wall->SetParent(*this);
+                    if(InitializePosition(wall))
+                    {
+                        success++;
+                    }
                 }
             }
             else
@@ -100,12 +120,12 @@ void TileMap::GenerateTileMap(Tile* baseTile, TileObject* wallObject)
         }
     }
 
-    printf("waluuugi \n");
+    printf("Number of successful wall placements: %d \n", success);
 }
 
 void TileMap::ClearTileMap()
 {
-
+    LogCustom(0, "ClearTileMap started", nullptr);
     if(tileMatrix != nullptr)
     {
         GameObject* tiles = children[0];
@@ -122,10 +142,20 @@ void TileMap::ClearTileMap()
             delete walls->GetChild(i);
         }
 
+        LogCustom(0, "Object delete", nullptr);
+
         for(int i = 0; i < gridx; i++) {
-            free(tileMatrix[i]); // delete the 2nd dimension array
+            delete(tileMatrix[i]); // delete the 2nd dimension array
         }
-        free(tileMatrix); // delete a itself
+        delete(tileMatrix); // delete a itself
+
+        LogCustom(0, "tileMatrix delete", nullptr);
+
+        // Needed when using malloc
+        // for(int i = 0; i < gridx; i++) {
+        //     free(tileMatrix[i]); // delete the 2nd dimension array
+        // }
+        // free(tileMatrix); // delete a itself
     }
 
     // for (int i = spawnedEnemies->GetChildCount() - 1; i > -1; i--)
@@ -187,31 +217,41 @@ bool TileMap::InitializePosition(TileObject* tileObject)
 
     if (tile == nullptr)
     {
-        printf("Can't place object %s : object outside tilemap", tileObject->ToString());
+        printf("Can't place object %s : object outside tilemap \n", tileObject->ToString().c_str());
         return false;
     }
 
     if (tile->IsStaticTile())
     {
-        printf("Can't place object %s : tile is static at position %s ", tileObject->ToString(),  tile->gridPosition.ToString());
+        printf("Can't place object %s : tile is static at position %s \n", tileObject->ToString().c_str(),  tile->gridPosition.ToString().c_str());
         return false;
     }
     
     if (tile->GetOccupiedTileObject() != nullptr)
     {
-        printf("Can't place object %s : tile already occupied at position %s", tileObject->ToString(),  tile->gridPosition.ToString());
+        printf("Can't place object %s : tile already occupied at position %s \n", tileObject->ToString().c_str(),  tile->gridPosition.ToString().c_str());
         return false;
     }
     
     if (tile->SetTileObject(tileObject))
     {
+        if(tileObject->tag.compare("Player") == 0)
+        {
+            printf("Player successfully set" + '\n');
+            printf("x: %d \n", tile->gridPosition.x);
+            printf("y: %d \n", tile->gridPosition.y);
+            printf("Before changing translation world x,z: %f %f \n", tile->transform.translation.x, tile->transform.translation.z);
+        }
         tileObject->transform.translation = tile->transform.translation;
         tileObject->SetOccupiedTile(tile);
-        tile->SetTileObject(tileObject);
+        if(tileObject->tag.compare("Player") == 0)
+        {
+            printf("After changing translation world x,z: %f %f \n", tileObject->transform.translation.x, tileObject->transform.translation.z);
+        }
         return true;
     }
 
-    printf("Can't place object %s : tile already occupied at position %s", tileObject->ToString(),  tile->gridPosition.ToString());
+    printf("Can't place object %s : tile already occupied at position %s", tileObject->ToString().c_str(),  tile->gridPosition.ToString().c_str());
     return false;
 }
 
@@ -224,7 +264,7 @@ Tile* TileMap::CreateTile(int xPos, int zPos)
 {
     Tile* tile = new Tile(*baseTile);
     tile->transform.translation = Vector3{transform.translation.x + xPos * worldSpacing, transform.translation.y + 0,transform.translation.z + zPos * worldSpacing};
-    tile->SetParent(this);
+    tile->SetParent(*this);
     tile->gridPosition = {xPos, zPos};
     return tile;
 }

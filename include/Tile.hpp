@@ -8,16 +8,20 @@ struct GridPosition {
     int x;
     int y;
 
-    char* ToString()
+    std::string ToString()
     {
-        return (char*) (x + " " + y);        
+        std::string out = "x: ";
+        out.append(std::to_string(x));
+        out.append(" y: ");
+        out.append(std::to_string(y));
+        return out;        
     }
 };
 
 class Tile : public GameObject
 {
 public:
-    Tile() {}
+    Tile();
     // Tile(Tile& tile);
     Tile(GridPosition gridPosition, TileObject* occupiedObject);
     virtual ~Tile() = default;
@@ -27,7 +31,7 @@ public:
     
     void Start() override;
     void Draw() override;    
-    
+
     void SetSolidModel(Model* model) {solidModel = model;}
     void SetPitModel(Model* model) {pitModel = model;}
     TileObject* GetOccupiedTileObject() {return occupiedObject;}

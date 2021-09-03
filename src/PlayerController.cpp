@@ -1,18 +1,30 @@
 #include "PlayerController.hpp"
-#include "stdio.h"
+#include "CustomLogger.hpp"
 
 PlayerController::PlayerController()
 {
-}
+    // TileObject
+    name = typeid(this).name();
+    tag = "Player";
+    staticObject = false;
 
-void PlayerController::SetTempLogger(TraceLogCallback callback)
-{
-    this->callback = callback;
+    // PlayerController
+    moveStepMultipier = 1;
+    stoppedMoving = true;
+    inputDirection = None;
+    newInput = None;
+    changeInput = None;
 }
 
 void PlayerController::Start()
 {
-    
+    if(occupiedTile == nullptr)
+    {
+        if(!boardController->ForceInitializePosition(*this))
+        {
+            LogCustom(2, "Couldn't place Player, no tile found", nullptr);
+        }
+    }
 }
 
 void PlayerController::Update()

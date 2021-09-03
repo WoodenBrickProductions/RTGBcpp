@@ -15,6 +15,7 @@ public:
     float tileSpawnRate, enemySpawnRate, wallSpawning, spawnScaling;
     bool generateEnemies, generateRandomSeed;
     float perlinSeed;
+    float worldSpacing;
 
     void LoadTileMap();
     void GenerateTileMap(Tile* baseTile, TileObject* wallObject);
@@ -29,7 +30,6 @@ private:
     Tile* baseTile;
     TileObject* wallObject;
     int gridx, gridy;
-    float worldSpacing;
     Tile*** tileMatrix;
 
     Tile* CreateTile(int xPos, int zPos);

@@ -25,3 +25,10 @@ TODO:
       * PlayerController
 
 Update isn't overriden.
+
+# Todo today:
+* ~~Make game launch again~~
+* Add grid movement to player
+  * Implement UnitController
+    * ~~Add WorldStats~~
+* Push to github

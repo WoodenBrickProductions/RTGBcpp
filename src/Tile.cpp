@@ -6,12 +6,16 @@
 //     this->occupiedObject = occupiedObject;
 // }
 
+
 Tile::Tile(GridPosition gridPosition, TileObject* occupiedObject)
 {
     this->gridPosition = gridPosition;
     this->occupiedObject = occupiedObject;
     model = pitModel;
+    name = typeid(this).name();
 }
+
+Tile::Tile() : Tile( {0} , nullptr) {}
 
 // Tile::Tile(Tile& tile)
 // {

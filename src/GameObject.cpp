@@ -4,13 +4,15 @@
 
 GameObject::GameObject()
 {
+    name = typeid(this).name();
+    tag = "Untagged";
     transform = { 0 };
     transform.scale = {1, 1, 1};
     baseColor = WHITE;
-    model = nullptr;
     parent = nullptr;
-    name = typeid(this).name();
-    // printf(name.c_str());
+    // children
+    model = nullptr;
+    active = true;
 }
 
 GameObject::GameObject(std::string name) : GameObject()
@@ -50,30 +52,30 @@ void GameObject::Draw()
     }
 }
 
-void GameObject::AddChild(GameObject* object)
+void GameObject::AddChild(GameObject& object)
 {
-    if(std::find(children.begin(), children.end(), object) == children.end())
+    if(std::find(children.begin(), children.end(), &object) == children.end())
     {
         // printf("Adding child \n");
-        children.push_back(object);
+        children.push_back(&object);
     }
 }
-void GameObject::RemoveChild(GameObject* object)
+void GameObject::RemoveChild(GameObject& object)
 {
-    for(int i = 0; i < children.size(); i++)
+    for(size_t i = 0; i < children.size(); i++)
     {
-        if(children[i] == object)
+        if(children[i] == &object)
         {
-            children[i] = *children.end();
+            children[i] = children[children.size() - 1];
             children.pop_back();
             break;
         }
     }
 }
 
-GameObject* GameObject::GetChild(int index)
+GameObject* GameObject::GetChild(size_t index)
 {
-    if(index > -1 && index < children.size())
+    if(index < children.size())
     {
         return children[index];
     }
@@ -81,24 +83,19 @@ GameObject* GameObject::GetChild(int index)
     return nullptr;
 }
 
-void GameObject::SetParent(GameObject* object)
+void GameObject::SetParent(GameObject& object)
 {
     void* ptr = &parent;
     // printf("%p \n", ptr);
-    if(object == nullptr)
-    {
-        // Still don't know where to error handle, only scene can have no parent.
-        return;
-    }
     // printf("Is parent != nullptr %d", (parent != nullptr));
     // printf("Is object != parent %d \n", (object != parent));
-    if(parent != nullptr && object != parent)
+    if(parent != nullptr && &object != parent)
     {
         // printf("Child already has parent \n");
-        parent->RemoveChild(this);
+        parent->RemoveChild(*this);
     }
-    parent = object;
-    parent->AddChild(this);
+    parent = &object;
+    parent->AddChild(*this);
 }
 
 void GameObject::GOLoadModel(Model& model)
@@ -112,7 +109,7 @@ void GameObject::SetActive(bool active)
     this->active = active;
 }
 
-const char* GameObject::ToString()
+std::string GameObject::ToString()
 {
-    return "GameObject";
+    return name;
 }

@@ -2,7 +2,8 @@
 #define TILEOBJECT_HPP
 
 #include "Tile.hpp"
-class BoardController;
+#include "BoardController.hpp"
+
 class TileObject : public GameObject
 {
 public:
