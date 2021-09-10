@@ -14,8 +14,9 @@ public:
     Tile* GetOccupiedTile() {return occupiedTile;}
     void SetOccupiedTile(Tile* tile);
 
-
 protected:
+    virtual void OnFailedToInitialize(); 
+    
     Tile* occupiedTile;
     GridPosition position;
     BoardController* boardController;

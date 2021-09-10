@@ -5,8 +5,8 @@ class State
 {
 public:
     virtual ~State() = default;
-    virtual void execute();
-    virtual void entry(State oldState);
-    virtual void exit(State newState);
+    virtual void Execute();
+    virtual void Entry(State* oldState);
+    virtual void Exit(State* newState);
 };
 #endif

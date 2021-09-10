@@ -197,6 +197,26 @@ typedef struct Vector3 {
     float x;                // Vector x component
     float y;                // Vector y component
     float z;                // Vector z component
+
+    // Custom Addition by Wooden_Brick
+    Vector3 operator+(const Vector3& vec) const {
+        return Vector3{vec.x + x, vec.y + y, vec.z + z};
+    }
+
+    // Custom Addition by Wooden_Brick
+    Vector3 operator-(const Vector3& vec) const {
+        return Vector3{x - vec.x, y - vec.y, z - vec.z};
+    }
+
+    // Custom Addition by Wooden_Brick
+    Vector3 operator*(const float mul) const {
+        return Vector3{x*mul, y*mul, z*mul};
+    }
+
+    // Custom Addition by Wooden_Brick
+    bool operator==(const Vector3& vec) const {
+        return (vec.x == x && vec.y == y && vec.z == z);
+    }
 } Vector3;
 
 // Vector4, 4 components

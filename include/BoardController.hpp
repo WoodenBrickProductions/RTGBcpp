@@ -15,6 +15,7 @@ public:
     bool InitializePosition(TileObject& tileObject);
     bool ForceInitializePosition(TileObject& tileObject);
     float GetWorldTileSpacing() {return worldStats.worldSpacing;}
+    Tile* GetTile(GridPosition position) {return tileMap->GetTile(position);}
 private:
     BoardController();
     static BoardController* current;

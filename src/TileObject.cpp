@@ -14,9 +14,18 @@ void TileObject::Start()
     {
         if(!boardController->InitializePosition(*this))
         {
-            delete this;
+            std::string out = "Could not initialize: " + name;
+            LogCustom(3, out.c_str(), nullptr);
+            OnFailedToInitialize();
         }
     }
+}
+
+void TileObject::OnFailedToInitialize()
+{
+    std::string out = "Destroying TileObject: " + name;
+    LogCustom(0, out.c_str(), nullptr);
+    delete this;
 }
 
 void TileObject::SetOccupiedTile(Tile* tile)

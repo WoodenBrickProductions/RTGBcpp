@@ -29,7 +29,7 @@ Tile::Tile() : Tile( {0} , nullptr) {}
 
 void Tile::Start()
 {
-    
+    GameObject::Start();
 }
 
 void Tile::Draw()

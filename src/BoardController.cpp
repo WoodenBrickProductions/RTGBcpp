@@ -39,7 +39,7 @@ bool BoardController::InitializePosition(TileObject& tileObject)
 {
     if (!tileMap->InitializePosition(&tileObject))
     {
-        printf("Couldn't place %s, destroying", tileObject.ToString().c_str());
+        printf("Couldn't place %s", tileObject.ToString().c_str());
         return false;
     }
     

@@ -6,10 +6,9 @@ class DamageSource;
 class IAttackable
 {
 public:
-    virtual ~IAttackable() = 0;
     virtual bool GetAttacked(DamageSource damageSource) = 0;
     virtual void OnDeath(DamageSource damageSource) = 0;
-    virtual GameObject GetGameObject() = 0;
+    virtual GameObject* GetGameObject() = 0;
 };
 
 #endif
