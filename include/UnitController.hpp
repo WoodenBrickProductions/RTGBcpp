@@ -60,7 +60,7 @@ protected:
     State* searchingState;
     State* waitingState; 
 
-    void MoveToTile(Tile* tile);
+    void MoveToTile(Tile* tile, Vector3 direction);
     void SetHealth(int healthChange);
     virtual void OnHealthReachesZero();
     virtual void ChangeState(State* newState);

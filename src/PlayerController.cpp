@@ -24,8 +24,21 @@ class Player_IdleState : public State
         {
             GridPosition targetPosition = player->GetTargetPosition(input);
             LogCustom(0, "Getting input", nullptr);
+            // Tile* targetTile = static_cast<Tile*>(malloc(sizeof(Tile)));
             Tile* targetTile = BoardController::Get()->GetTile(targetPosition);
+            
+
             blackboard->Insert("targetTile", targetTile);
+            Tile* newTile = (Tile*) blackboard->Get("targetTile");
+            std::string out = "Blackboard value: ";
+
+            out.append(newTile == targetTile ? "yes" : "no");
+            printf("%p", targetTile);
+            printf("\n");
+            printf("%p", (void*) targetTile);
+            printf("\n");
+            printf("%p", newTile);
+            LogCustom(0, out.c_str(), nullptr);
             if (targetTile != nullptr && !targetTile->IsStaticTile())
             {
                 TileObject* occupiedTileObject = targetTile->GetOccupiedTileObject();
@@ -63,6 +76,7 @@ class Player_MovingState : public State
     float moveTime;
     bool stoppedMoving;
     float movementSnapThreshold;
+    Vector3 direction;
     float worldMoveStep;
     Tile* targetTile;
 
@@ -83,7 +97,7 @@ class Player_MovingState : public State
 
         if (moveTime >= movementSnapThreshold / player->unitStats.movementSpeed)
         {
-            player->MoveToTile(targetTile); // Last left off here, made a blackboard, now I'm playing around with static casts
+            player->MoveToTile(targetTile, direction); // Last left off here, made a blackboard, now I'm playing around with static casts
             // Last left off here, smth wrong here
         } else if (!stoppedMoving)
         {
@@ -105,7 +119,9 @@ class Player_MovingState : public State
     {
         targetTile = static_cast<Tile*>(blackboard->Get("targetTile"));
         LogCustom(0, "Entering MovingState", nullptr);
+        stoppedMoving = false;
         moveTime = 1.0f / player->unitStats.movementSpeed;
+        direction = (targetTile->transform.translation - player->transform.translation) * (1 / movementSnapThreshold);
     }
 
     void Exit(State* newState)
@@ -127,7 +143,10 @@ PlayerController::PlayerController()
     inputDirection = None;
     newInput = None;
     changeInput = None;
-    blackboard.Insert("targetTile", nullptr);
+    blackboard.Insert("targetTile", new Tile());
+
+    // UnitStats
+    unitStats.movementSpeed = 5;
 }
 
 void PlayerController::Start()
@@ -205,13 +224,13 @@ GridPosition PlayerController::GetTargetPosition(Direction direction)
     switch(direction)
     {
         case Up:
-            return GridPosition{position.x, position.y + 1};
+            return GridPosition{position.x, position.y - 1};
             break;
         case Right:
             return GridPosition{position.x + 1, position.y};
             break;
         case Down:
-            return GridPosition{position.x, position.y - 1};
+            return GridPosition{position.x, position.y + 1};
             break;
         case Left:
             return GridPosition{position.x - 1, position.y};

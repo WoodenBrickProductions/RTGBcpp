@@ -15,6 +15,9 @@ public:
         it = blackboard.find(index);
         if(it != blackboard.end())
         {
+            printf("%s", it->first.c_str());
+            printf("%p", it->second);
+            LogCustom(0, "Found key, returning", nullptr);
             return it->second;
         }
 
@@ -25,7 +28,12 @@ public:
 
     void Insert(std::string index, void* value)
     {
-        blackboard.insert(std::pair<std::string, void*>(index, value));
+        std::pair<std::map<std::string,void*>::iterator,bool> ret;
+        ret = blackboard.insert(std::pair<std::string, void*>(index, value));
+        if(ret.second == false)
+        {
+            blackboard[index] = value;
+        }
     }
 
 private:

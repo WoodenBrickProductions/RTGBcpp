@@ -86,6 +86,7 @@ int main()
 
     // Player creation
     PlayerController* player = new PlayerController();
+    player->transform.translation = {1, 0, 1};
     player->GOLoadModel(cube);
     player->baseColor = BLUE;
     // GameObject** gameObjects = new GameObject*; allocation for 1 pointer

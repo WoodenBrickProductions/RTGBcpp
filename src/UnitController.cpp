@@ -152,10 +152,11 @@ void UnitController::OnTargetObjectKilled(IAttackable* target)
     LogCustom(0, out.c_str(), nullptr); // LAST LEFT OFF
 }
 
-void UnitController::MoveToTile(Tile* tile)
+void UnitController::MoveToTile(Tile* tile, Vector3 direction)
 {
     float dTime = GetFrameTime();
-    transform.translation = transform.translation + (tile->transform.translation - transform.translation) * dTime * worldMoveStep; 
+    // transform.translation = transform.translation + (tile->transform.translation - transform.translation) * dTime * moveStepMultiplier * worldMoveStep;
+    transform.translation = transform.translation + direction * dTime * worldMoveStep; 
 }
 
 void UnitController::SetHealth(int healthChange)
