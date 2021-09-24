@@ -6,6 +6,11 @@
 #include<ostream>
 #include<string>
 
+// Custom Addition by Wooden_Brick
+// Vector3 Vector3Min(const Vector3& vec1, const Vector3& vec2) {
+//     return vec1.Magnitude() >= vec2.Magnitude() ? vec1 : vec2;
+// }
+
 class GameObject
 {
 public:

@@ -80,6 +80,7 @@
 #define RAYLIB_H
 
 #include <stdarg.h>     // Required for: va_list - Only used by TraceLogCallback
+#include <math.h>
 
 #define RAYLIB_VERSION  "3.8-dev"
 
@@ -217,7 +218,30 @@ typedef struct Vector3 {
     bool operator==(const Vector3& vec) const {
         return (vec.x == x && vec.y == y && vec.z == z);
     }
+
+    // Custom Addition by Wooden_Brick
+    bool operator!=(const Vector3& vec) const {
+        return (vec.x != x || vec.y != y || vec.z != z);
+    }
+
+    // Custom Addition by Wooden_Brick
+    float Magnitude() const {
+        return sqrt((x*x + y*y + z*z));
+    }
+
+    // Custom Addition by Wooden_Brick
+    Vector3 Normalized() {
+        float sum = Magnitude();
+        // if(sum == 0)
+        // {
+        //     return Vector3{ 0 };
+        // }
+        return Vector3{x/sum, y/sum, z/sum};
+    }
+
 } Vector3;
+
+
 
 // Vector4, 4 components
 typedef struct Vector4 {

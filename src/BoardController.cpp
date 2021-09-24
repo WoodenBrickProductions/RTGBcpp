@@ -51,7 +51,7 @@ bool BoardController::ForceInitializePosition(TileObject& tileObject)
     if (!tileMap->InitializePosition(&tileObject))
     {
         Tile* tile = tileMap->GetValidTile();
-        if (tile->SetTileObject(&tileObject))
+        if (tile != nullptr && tile->SetTileObject(&tileObject))
         {
             tileObject.transform.translation = tile->transform.translation;
             tileObject.SetOccupiedTile(tile);

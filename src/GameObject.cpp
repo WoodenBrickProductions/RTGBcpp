@@ -1,6 +1,5 @@
-#include "GameObject.hpp"
+#include "CameraController.hpp"
 #include <algorithm>
-
 
 GameObject::GameObject()
 {
@@ -38,7 +37,32 @@ void GameObject::Update()
 
 void GameObject::Draw()
 {
-    if(model != nullptr)
+    // FRUSTUM CULLING PLACEHOLDER FOR TESTING
+    CameraController* cameraController = CameraController::main; // Last left off here, I have to move this out to main, because cycle dependancy when GameObject has reference to CameraController
+    Camera camera = cameraController->GetCamera();
+    float zpClip, znClip, xMinClip, xMaxClip, alpha, beta, omega, b, v1;
+
+    // Vertical culling
+    Vector3 vToTarget = cameraController->target->transform.translation - cameraController->transform.translation;
+    alpha = asin((cameraController->transform.translation.y - cameraController->target->transform.translation.y)/vToTarget.Magnitude());
+    beta = 180 - alpha/DEG2RAD - camera.fovy / 2;
+    omega = 180 - beta - camera.fovy;
+
+    zpClip = vToTarget.Magnitude() * sin(camera.fovy/2 * DEG2RAD) / sin(beta * DEG2RAD);
+    znClip = vToTarget.Magnitude() * sin(camera.fovy/2 * DEG2RAD) / sin(omega * DEG2RAD);
+
+    // Horizontal culling
+    v1 = sin((90 - camera.fovy / 2)*DEG2RAD) * GetScreenHeight()/2 - sin((camera.fovy / 2)*DEG2RAD);
+    xMinClip = vToTarget.Magnitude() * GetScreenWidth() / v1 / 2;
+
+
+    if(model != nullptr 
+    && 
+    transform.translation.z < (cameraController->followPosition.z + zpClip + 1 /* padding */ ) &&
+    transform.translation.z > (cameraController->followPosition.z - znClip - 1 /* padding */ ) && 
+    transform.translation.x < (cameraController->followPosition.x + xMinClip) &&
+    transform.translation.x > (cameraController->followPosition.x - xMinClip)
+    )
     {
         DrawModelEx(*model, transform.translation, {}, 0, transform.scale, baseColor);
         DrawModelWiresEx(*model, transform.translation, {}, 0, transform.scale, BLACK);

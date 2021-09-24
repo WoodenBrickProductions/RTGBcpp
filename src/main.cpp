@@ -19,7 +19,7 @@
 *
 ********************************************************************************************/
 
-#include "raylib.h"
+#include "CameraController.hpp"
 #include "BoardController.hpp"
 #include "Tile.hpp"
 #include "PlayerController.hpp"
@@ -32,8 +32,8 @@ const auto LOG_CALLBACK = LogCustom;
 
 const int SCREENWIDTH = 800;
 const int SCREENHEIGHT = 450;
-const int GRIDX = 20;
-const int GRIDY = 20;
+const int GRIDX = 10;
+const int GRIDY = 10;
 
 int main() 
 {
@@ -55,12 +55,8 @@ int main()
 
 
     // Camera creation
-    Camera camera = { 0 };
-    camera.position = { 10.0f, 10.0f, 8.0f };
-    camera.target = { 0.0f, 0.0f, 0.0f };
-    camera.up = { 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    CameraController camera = (CAMERA_PERSPECTIVE);
+
     printf("\n\n\n\n");
     Model cube = LoadModel("../resources/Models/CubeTriangulated.obj");
     Model smallCube = LoadModel("../resources/Models/SmallCubeTesting.obj");
@@ -98,11 +94,15 @@ int main()
 
     printf("TileMap has children %d AND ",tileMap->GetChildCount());
     printf("STARTING ------- \n");
+    camera.transform.translation = {0, 10.0f, 4.0f};
+    camera.target = player;
+
     for(auto gameObject : gameObjects)
     {
         gameObject->Start();
     }
-    SetCameraMode(camera, CAMERA_FREE);
+
+    camera.Start();
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -115,9 +115,10 @@ int main()
     {
         // Update
         //----------------------------------------------------------------------------------
-        UpdateCamera(&camera);
+        // UpdateCamera(&camera);
         //----------------------------------------------------------------------------------
 
+        camera.Update();
         tileMap->Update();
         for(unsigned int i = 0; i < gameObjects.size(); i++)
         {
@@ -130,7 +131,7 @@ int main()
 
             ClearBackground(RAYWHITE);
 
-            BeginMode3D(camera);
+            BeginMode3D(camera.GetCamera());
                 // printf("Trying to draw tilemap \n");
                 tileMap->Draw();
                 // printf("Finished drawing tilemap \n");

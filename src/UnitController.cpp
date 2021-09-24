@@ -156,7 +156,9 @@ void UnitController::MoveToTile(Tile* tile, Vector3 direction)
 {
     float dTime = GetFrameTime();
     // transform.translation = transform.translation + (tile->transform.translation - transform.translation) * dTime * moveStepMultiplier * worldMoveStep;
-    transform.translation = transform.translation + direction * dTime * worldMoveStep; 
+    Vector3 vec1 = direction * dTime * worldMoveStep;
+    Vector3 vec2 = tile->transform.translation - transform.translation;
+    transform.translation = transform.translation + (vec1.Magnitude() <= vec2.Magnitude() ? vec1 : vec2);  // Last left off here.
 }
 
 void UnitController::SetHealth(int healthChange)

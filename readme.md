@@ -26,11 +26,10 @@ TODO:
 
 Update isn't overriden.
 
-# Todo today:
-* ~~Make game launch again~~
-* Add grid movement to player
-  * Add Player Blackboard
-    * Create class with dictionary
-  * ~~Implement UnitController~~
-    * ~~Add WorldStats~~
-* ~~Push to github~~
+# Todo today
+* ~~Camera follow~~
+* Object draw culling
+  * Find Center of object
+  * Get ViewFrustum
+  * Draw only if inside Frustum
+* Move data externally so I don't have to rebuild project every time I change a parameter

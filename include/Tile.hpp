@@ -1,7 +1,7 @@
 #ifndef TILE_HPP
 #define TILE_HPP
 
-#include<GameObject.hpp>
+#include "GameObject.hpp"
 
 class TileObject;
 struct GridPosition {

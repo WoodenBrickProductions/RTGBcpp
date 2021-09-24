@@ -178,9 +178,9 @@ float TileMap::GetWorldTileSpacing()
 Tile* TileMap::GetValidTile()
 {
     // int x = (int)(Random.value * gridx);
-    int x = GetRandomValue(0, gridx);
+    int x = GetRandomValue(0, gridx - 1);
     // int y = (int)(Random.value * gridy);
-    int y = GetRandomValue(0, gridy);
+    int y = GetRandomValue(0, gridy - 1);
 
     for (int i = x; i < gridx; i++)
     {
