@@ -15,7 +15,7 @@ CameraController::CameraController(CameraProjection cameraPerspective)
     camera.projection = cameraPerspective;
     cameraMovementSpeed = 1;
 }
-void CameraController::Start() 
+void CameraController::Start(GameObject* scene, GameState* gameState) 
 {
     if(main == nullptr)
     {
@@ -33,7 +33,7 @@ void CameraController::Start()
     }
 
 }
-void CameraController::Update() {
+void CameraController::Update(GameObject* scene, GameState* gameState) {
 
     if(followPosition != target->transform.translation)
     {

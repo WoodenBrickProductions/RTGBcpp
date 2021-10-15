@@ -4,14 +4,13 @@
 class UnitStatus
 {
 public:
-    UnitStatus()
-    {
-        movable = true;
-        attackable = true;
-        effectable = true;
-        interactable = true;
-        canAttack = true;
-    }
+    bool movable = true;
+    bool attackable = true;
+    bool effectable = true;
+    bool interactable = true;
+    bool canAttack = true;
+
+    UnitStatus(){}
 
     virtual ~UnitStatus() = default;
 
@@ -23,13 +22,6 @@ public:
         interactable = unitStatus.interactable;
         canAttack = unitStatus.canAttack;
     }
-
-    bool movable;
-    bool attackable;
-    bool effectable;
-    bool interactable;
-    bool canAttack;
-
 };
 
 #endif

@@ -8,8 +8,11 @@ TileObject::TileObject()
     this->boardController = BoardController::Get();
 }
 
-void TileObject::Start()
+void TileObject::Start(GameObject* scene, GameState* gameState)
 {
+    _CRT_UNUSED(scene);
+    _CRT_UNUSED(gameState);
+    
     if(occupiedTile == nullptr)
     {
         if(!boardController->InitializePosition(*this))
@@ -25,11 +28,17 @@ void TileObject::OnFailedToInitialize()
 {
     std::string out = "Destroying TileObject: " + name;
     LogCustom(0, out.c_str(), nullptr);
-    delete this;
+    Destroy();
 }
 
 void TileObject::SetOccupiedTile(Tile* tile)
 {
     occupiedTile = tile;
     position = occupiedTile->gridPosition;
+}
+
+void TileObject::Destroy()
+{
+    occupiedTile->ClearTileObject();
+    GameObject::Destroy();
 }

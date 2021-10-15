@@ -2,6 +2,8 @@
 #define TILE_HPP
 
 #include "GameObject.hpp"
+#include "stdlib.h"
+#include "CustomLogger.hpp"
 
 class TileObject;
 struct GridPosition {
@@ -16,6 +18,16 @@ struct GridPosition {
         out.append(std::to_string(y));
         return out;        
     }
+
+    GridPosition operator+(const GridPosition& pos) const {
+        return GridPosition{pos.x + x, pos.y + y};
+    }
+
+    static int Distance(GridPosition p1, GridPosition p2)
+    {
+        LogCustom(0, "Distance is being called", nullptr);
+        return abs(p1.x - p2.x) + abs(p1.y - p2.y);
+    }
 };
 
 class Tile : public GameObject
@@ -29,7 +41,6 @@ public:
     bool staticTile;
     GridPosition gridPosition;
     
-    void Start() override;
     void Draw() override;    
 
     void SetSolidModel(Model* model) {solidModel = model;}

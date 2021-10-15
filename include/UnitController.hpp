@@ -17,7 +17,7 @@ public:
 
     UnitController();
     virtual ~UnitController() = default;
-    void Start() override;
+    void Start(GameObject* scene, GameState* gameState) override;
 
     // IAttackable
     bool GetAttacked(DamageSource damageSource) override;
@@ -40,12 +40,13 @@ public:
 
 protected:
     float moveTime;
-    float attackTime;
+    float attackTime; // Possibly not needed
     float attackCooldown;
     State* currentState;
     // float attackCooldown;
     float worldMoveStep;
     float worldScalling;
+    float moveStepMultipier;
     Tile* targetTile;
     // UIController uiController;
     // UnitIndicatorController indicatorController;

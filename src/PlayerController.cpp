@@ -4,11 +4,12 @@
 
 class Player_IdleState : public State
 {
+public:
     PlayerController* player;
     Direction input;
     Blackboard* blackboard;
 
-    public: Player_IdleState(PlayerController* player)
+    Player_IdleState(PlayerController* player)
     {
         this->player = player;
         blackboard = &player->blackboard;
@@ -149,9 +150,9 @@ PlayerController::PlayerController()
     unitStats.movementSpeed = 5;
 }
 
-void PlayerController::Start()
+void PlayerController::Start(GameObject* scene, GameState* state)
 {
-    UnitController::Start();
+    UnitController::Start(scene, state);
     idleState = new Player_IdleState(this);
     movingState = new Player_MovingState(this);
 
@@ -166,8 +167,11 @@ void PlayerController::OnFailedToInitialize()
     }
 }
 
-void PlayerController::Update()
+void PlayerController::Update(GameObject* scene, GameState* state)
 {
+    _CRT_UNUSED(scene);
+    _CRT_UNUSED(state);
+
     currentState->Execute();
     // int movex = 0, movez = 0;
     // if (IsKeyDown(KEY_A))

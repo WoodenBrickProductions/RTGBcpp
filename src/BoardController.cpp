@@ -22,9 +22,7 @@ BoardController* BoardController::Get()
 
 void BoardController::Initialize(TileMap* tileMap)
 {
-    printf("initialising \n");
     Get()->tileMap = tileMap;
-    printf("init done \n");
 }
 
 void BoardController::Initialize(TileMap* tileMap, float worldSpacing)

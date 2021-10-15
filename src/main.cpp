@@ -19,10 +19,14 @@
 *
 ********************************************************************************************/
 
+#define UNUSED(x) (void)(x)
+
+#include "GameController.hpp"
 #include "CameraController.hpp"
 #include "BoardController.hpp"
 #include "Tile.hpp"
 #include "PlayerController.hpp"
+#include "BasicEnemyController.hpp"
 #include "CustomLogger.hpp"
 #include <stdio.h>
 #include <time.h>
@@ -32,83 +36,143 @@ const auto LOG_CALLBACK = LogCustom;
 
 const int SCREENWIDTH = 800;
 const int SCREENHEIGHT = 450;
-const int GRIDX = 10;
-const int GRIDY = 10;
+const int GRIDX = 100;
+const int GRIDY = 100;
+
+BoardController* gBoardController;
+GameObject* gScene;
+GameState* gGameState;
+CameraController* gCameraController;
+std::vector<GameObject*> gGameObjects;
+
+void Instantiate(GameObject* gameObject, GameObject* scene, GameState* gameState)
+{
+    gGameObjects.push_back(gameObject);
+    if(gameState->gameStarted)
+    {
+        gameObject->Start(scene, gameState);
+    }
+}
+
+void Destroy(GameObject* gameObject)
+{
+    int size = gGameObjects.size();
+    for(int i = 0; i < size;)
+    {
+        if(gGameObjects[i] == gameObject)
+        {
+            std::swap(gGameObjects[i], gGameObjects[--size]);
+            gGameObjects.pop_back();
+        }
+        else
+        {
+            i++;
+        }
+    }
+    gameObject->Destroy();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void LoadExternalData(Resources& resources)
+{
+    LogCustom(0, "Loading resources...", nullptr);
+    resources.cubeTriangulated = LoadModel("../resources/Models/CubeTriangulated.obj");
+    resources.smallCube = LoadModel("../resources/Models/SmallCubeTesting.obj");
+    resources.smallWall = LoadModel("../resources/Models/SmallWall.obj");
+    resources.placeholderTexture = LoadTexture("../resources/Textures/Placeholder256x.png"); 
+    resources.pit = resources.cubeTriangulated;
+    SetMaterialTexture(&resources.cubeTriangulated.materials[0], MAP_DIFFUSE, resources.placeholderTexture);
+    LogCustom(0, "Loading complete", nullptr);
+}
+
+void UnloadExternalData(Resources& resources)
+{
+    LogCustom(0, "Unloading resources...", nullptr);
+    UnloadModel(resources.cubeTriangulated);
+    UnloadModel(resources.pit);
+    UnloadModel(resources.smallCube);
+    UnloadModel(resources.smallWall);
+    UnloadTexture(resources.placeholderTexture);
+    LogCustom(0, "Unloading complete", nullptr);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void InitializeGameSystems()
+{
+    SetTraceLogCallback(LOG_CALLBACK);
+    gBoardController = BoardController::Get();
+    gScene = new GameObject();
+    gCameraController = new CameraController(CAMERA_PERSPECTIVE);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void LoadSystemObjects(Resources& resources)
+{
+    // TileMap
+    TileMap* tileMap = new TileMap(GRIDX, GRIDY);
+    gScene->AddChild(*tileMap);
+    gBoardController->Initialize(tileMap);
+    
+    // Tilemap Base Tile
+    Tile* baseTile = new Tile();
+    baseTile->LoadGameObjectModel(resources.cubeTriangulated);
+    baseTile->SetPitModel(&resources.smallCube);
+    baseTile->SetSolidModel(&resources.pit);
+    baseTile->transform.scale.y = 0.1f;
+    baseTile->baseColor = RED;
+    
+    // Tilemap Wall Object
+    TileObject* wall = new TileObject();
+    wall->LoadGameObjectModel(resources.cubeTriangulated);
+    wall->baseColor = BROWN;
+
+    tileMap->GenerateTileMap(baseTile, wall);
+    gScene->AddChild(*tileMap);
+
+    // Player 
+    PlayerController* player = new PlayerController();
+    player->transform.translation = {1, 0, 1};
+    player->LoadGameObjectModel(resources.cubeTriangulated);
+    player->baseColor = BLUE;
+    gScene->AddChild(*player);
+
+    // BasicEnemy : Testing
+    BasicEnemyController* enemy = new BasicEnemyController();
+    enemy->transform.translation = {5, 0, 5};
+    enemy->LoadGameObjectModel(resources.cubeTriangulated);
+    enemy->baseColor = PINK;
+    gScene->AddChild(*enemy);
+
+    gCameraController->transform.translation = {0, 10.0f, 4.0f};
+    gCameraController->target = player;
+    gScene->AddChild(*gCameraController);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main() 
 {
-    SetTraceLogCallback(LOG_CALLBACK);
-    LOG_CALLBACK(0, "Logger is working correctly \n", nullptr);
-    TileMap* tileMap = new TileMap(GRIDX, GRIDY);
-    printf("ttayas \n");
-    Tile baseTile;
-    TileObject wall; 
-    BoardController* boardController = BoardController::Get();
-    printf("ttaya \n");
-    std::vector<GameObject*> gameObjects;
-    
-    printf("ttay \n");
-
+    Resources resources;
+    gScene = new GameObject();
+    gGameState = new GameState();
     InitWindow(SCREENWIDTH, SCREENHEIGHT, "raylib"); 
+    LoadExternalData(resources);
+    
     // Initialization
     //--------------------------------------------------------------------------------------
+    InitializeGameSystems();
+    LoadSystemObjects(resources);
 
-
-    // Camera creation
-    CameraController camera = (CAMERA_PERSPECTIVE);
-
-    printf("\n\n\n\n");
-    Model cube = LoadModel("../resources/Models/CubeTriangulated.obj");
-    Model smallCube = LoadModel("../resources/Models/SmallCubeTesting.obj");
-    Model smallWall = LoadModel("../resources/Models/SmallWall.obj");
-    Texture2D placeHolderTexture = LoadTexture("../resources/Textures/Placeholder256x.png"); 
-    Model pit = cube;
-    SetMaterialTexture(&cube.materials[0], MAP_DIFFUSE, placeHolderTexture);
-    printf("\n\n\n\n");
-
-    baseTile.GOLoadModel(cube);
-    baseTile.transform.scale.y = 0.1f;
-    baseTile.baseColor = RED;
-    wall.baseColor = BROWN;
-    baseTile.SetPitModel(&smallCube);
-    baseTile.SetSolidModel(&cube);
-    
-    wall.GOLoadModel(cube);
-    BoardController::Initialize(tileMap);
-    tileMap->GenerateTileMap(&baseTile, &wall);
-    printf("\nFinished generating tileMap\n");
-    
-    printf("TESTING\n");
-
-    // Player creation
-    PlayerController* player = new PlayerController();
-    player->transform.translation = {1, 0, 1};
-    player->GOLoadModel(cube);
-    player->baseColor = BLUE;
-    // GameObject** gameObjects = new GameObject*; allocation for 1 pointer
-    // GameObject** gameObjects = new GameObject*[10]; with allocation for 10 pointers
-    // GameObject* gameObjects[10]; allocation for 10 pointers
-    gameObjects.push_back(player);
-    // object[2] == *(object + 2*sizeof(object))
-    // object[2] = *(object+2) = *(2+object) = 2[object]
-
-    printf("TileMap has children %d AND ",tileMap->GetChildCount());
-    printf("STARTING ------- \n");
-    camera.transform.translation = {0, 10.0f, 4.0f};
-    camera.target = player;
-
-    for(auto gameObject : gameObjects)
+    for(int i = 0; i < gScene->GetChildCount(); i++)
     {
-        gameObject->Start();
+        gScene->GetChild(i)->Start(gScene, gGameState); 
     }
-
-    camera.Start();
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
-
-
-    printf("Player position: %f %f", player->transform.translation.x, player->transform.translation.z);
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -118,11 +182,9 @@ int main()
         // UpdateCamera(&camera);
         //----------------------------------------------------------------------------------
 
-        camera.Update();
-        tileMap->Update();
-        for(unsigned int i = 0; i < gameObjects.size(); i++)
+        for(int i = 0; i < gScene->GetChildCount(); i++)
         {
-            gameObjects[i]->Update();
+            gScene->GetChild(i)->Update(gScene, gGameState); // LLO: I should create two methods for Instantiate and Destroy, declare inside GameObject, implement in main
         }
 
         // Draw
@@ -131,15 +193,8 @@ int main()
 
             ClearBackground(RAYWHITE);
 
-            BeginMode3D(camera.GetCamera());
-                // printf("Trying to draw tilemap \n");
-                tileMap->Draw();
-                // printf("Finished drawing tilemap \n");
-                for(unsigned int i = 0; i < gameObjects.size(); i++)
-                {
-                    gameObjects[i]->Draw();
-                }
-                DrawGrid(10, 1.0f);
+            BeginMode3D(gCameraController->GetCamera());
+                gScene->Draw();
             EndMode3D();
 
             DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
@@ -152,9 +207,18 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(cube);    
+    UnloadExternalData(resources);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
 }
+
+
+
+
+// GameObject** gameObjects = new GameObject*; allocation for 1 pointer
+// GameObject** gameObjects = new GameObject*[10]; with allocation for 10 pointers
+// GameObject* gameObjects[10]; allocation for 10 pointers
+// object[2] == *(object + 2*sizeof(object))
+// object[2] = *(object+2) = *(2+object) = 2[object]

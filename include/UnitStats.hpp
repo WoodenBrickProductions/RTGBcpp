@@ -4,17 +4,16 @@
 class UnitStats 
 {
 public:
-    UnitStats()
-    {
-        maxHealth = 1;
-        currentHealth = 1;
-        attackDamage = 1;
-        attackSpeed = 1;
-        attackRange = 1;
-        experience = 1;
-        level = 1;
-        movementSpeed = 1;
-    }
+    int maxHealth = 1;
+    int currentHealth = 1;
+    int attackDamage = 1;
+    float attackSpeed = 1;
+    int attackRange = 1;
+    int experience = 1;
+    int level = 1;
+    float movementSpeed = 1;
+
+    UnitStats(){}
 
     virtual ~UnitStats() = default;
 
@@ -29,15 +28,6 @@ public:
         attackSpeed = unitStats.attackSpeed;
         movementSpeed = unitStats.movementSpeed;
     }
-
-    int maxHealth;
-    int currentHealth;
-    int attackDamage;
-    float attackSpeed;
-    int attackRange;
-    int experience;
-    int level;
-    float movementSpeed;
 };
 
 #endif

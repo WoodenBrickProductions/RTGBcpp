@@ -5,6 +5,7 @@ GameObject::GameObject()
 {
     name = typeid(this).name();
     tag = "Untagged";
+    started = false;
     transform = { 0 };
     transform.scale = {1, 1, 1};
     baseColor = WHITE;
@@ -12,7 +13,13 @@ GameObject::GameObject()
     // children
     model = nullptr;
     active = true;
+    // gameObjects.push_back(this);
 }
+
+// GameObject::~GameObject()
+// {
+//     std::remove(gameObjects.begin(), gameObjects.end(), this);
+// }
 
 GameObject::GameObject(std::string name) : GameObject()
 {
@@ -20,23 +27,28 @@ GameObject::GameObject(std::string name) : GameObject()
     // printf(("->" + name).c_str());
 }
 
-void GameObject::Start() 
+void GameObject::Start(GameObject* scene, GameState* gameState) 
 {
-    // Assign default parent as Scene;
+    started = true;
 }
 
-void GameObject::Awake()
+void GameObject::Awake(GameObject* scene, GameState* gameState)
 {
 
 }
 
-void GameObject::Update()
+void GameObject::Update(GameObject* scene, GameState* gameState)
 {
 
 }
 
 void GameObject::Draw()
 {
+    if(!active)
+    {
+        return;
+    }
+
     // FRUSTUM CULLING PLACEHOLDER FOR TESTING
     CameraController* cameraController = CameraController::main; // Last left off here, I have to move this out to main, because cycle dependancy when GameObject has reference to CameraController
     Camera camera = cameraController->GetCamera();
@@ -122,7 +134,7 @@ void GameObject::SetParent(GameObject& object)
     parent->AddChild(*this);
 }
 
-void GameObject::GOLoadModel(Model& model)
+void GameObject::LoadGameObjectModel(Model& model)
 {
     this->model = &model;
 }
@@ -136,4 +148,18 @@ void GameObject::SetActive(bool active)
 std::string GameObject::ToString()
 {
     return name;
+}
+
+void GameObject::Destroy()
+{
+    GameObject* parent = GetParent();
+    if(parent != nullptr)
+    {
+        parent->RemoveChild(*this);
+    }
+    for(auto child : children)
+    {
+        child->Destroy();
+    }
+    delete this;
 }

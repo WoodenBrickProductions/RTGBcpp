@@ -1,15 +1,11 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOJBECT_H
 
+#include "GameController.hpp"
 #include<vector>
 #include<raylib.h>
 #include<ostream>
 #include<string>
-
-// Custom Addition by Wooden_Brick
-// Vector3 Vector3Min(const Vector3& vec1, const Vector3& vec2) {
-//     return vec1.Magnitude() >= vec2.Magnitude() ? vec1 : vec2;
-// }
 
 class GameObject
 {
@@ -18,17 +14,22 @@ public:
     GameObject(std::string name);
     virtual ~GameObject() = default;
     
+    static std::vector<GameObject*> gameObjects;
+
     std::string name;
     std::string tag;
     Transform transform;
     Color baseColor;
-    
-    virtual void Awake();
-    virtual void Start();
-    virtual void Update();
+    bool started;
+
+    virtual void Awake(GameObject* scene, GameState* gameState);
+    virtual void Start(GameObject* scene, GameState* gameState);
+    virtual void Update(GameObject* scene, GameState* gameState);
     virtual void Draw();
+    virtual void Destroy();
     virtual std::string ToString();
-    void GOLoadModel(Model& model);
+
+    void LoadGameObjectModel(Model& model);
     void SetActive(bool active);
     void SetChild(int index, GameObject& object);
     void AddChild(GameObject& object);
@@ -48,5 +49,9 @@ protected:
     Model* model;
     bool active;
 };
+
+void Instantiate(GameObject& gameObject);
+void Destroy(GameObject& gameObject);
+
 
 #endif

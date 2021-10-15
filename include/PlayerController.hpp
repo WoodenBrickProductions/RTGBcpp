@@ -13,8 +13,8 @@ public:
     friend class Player_MovingState;
     PlayerController();
     virtual ~PlayerController() = default;
-    void Start() override;
-    void Update() override;
+    void Start(GameObject* scene, GameState* state) override;
+    void Update(GameObject* scene, GameState* state) override;
 
 protected:
     void OnFailedToInitialize() override;
@@ -24,7 +24,6 @@ private:
     GridPosition GetTargetPosition(Direction direction);
 
     Blackboard blackboard;
-    float moveStepMultipier;
     bool stoppedMoving;
     Direction inputDirection;
     Direction newInput;

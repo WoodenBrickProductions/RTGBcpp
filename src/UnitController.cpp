@@ -83,6 +83,7 @@ UnitController::UnitController()
     attackCooldown = 1;
     currentState = nullptr;
     worldMoveStep = 1;
+    moveStepMultipier = 1;
     worldScalling = 1;
     Tile* targetTile = nullptr;
     // STATES ONLY RESERVED LOCATIONS
@@ -98,9 +99,9 @@ UnitController::UnitController()
     waitingState = nullptr; 
 }
 
-void UnitController::Start() 
+void UnitController::Start(GameObject* scene, GameState* gameState) 
 {
-    TileObject::Start();
+    TileObject::Start(scene, gameState);
     pausedState = new PausedState();
     idleState = new IdleState();
     movingState = new MovingState();
@@ -130,7 +131,8 @@ void UnitController::OnDeath(DamageSource damageSource)
 {
     occupiedTile->ClearTileObject();
     LogCustom(0, "This unit has been killed", nullptr);
-    // TODO: Remove from parent, remove from tile, delete this object, delete children.
+    // TODO: Update UI
+    Destroy();
 }
 GameObject* UnitController::GetGameObject() 
 {
@@ -192,4 +194,6 @@ void UnitController::ChangeState(State* newState)
     oldState->Exit(newState);
     currentState->Entry(oldState);
 }
+
+
 

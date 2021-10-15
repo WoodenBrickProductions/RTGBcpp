@@ -10,8 +10,8 @@ public:
     CameraController(CameraProjection cameraPerspective);
     virtual ~CameraController() = default;
     
-    void Start() override;
-    void Update() override;
+    void Start(GameObject* scene, GameState* gameState) override;
+    void Update(GameObject* scene, GameState* gameState) override;
 
     static CameraController* main;
     

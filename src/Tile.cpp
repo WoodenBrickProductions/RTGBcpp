@@ -27,11 +27,6 @@ Tile::Tile() : Tile( {0} , nullptr) {}
 //     this->model = model;
 // }
 
-void Tile::Start()
-{
-    GameObject::Start();
-}
-
 void Tile::Draw()
 {
     // printf(("Drawing: " + name).c_str());

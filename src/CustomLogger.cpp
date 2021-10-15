@@ -2,7 +2,7 @@
 
 void LogCustom(int msgType, const char *text, va_list args)
 {
-    #if DEBUG && 0
+    #if DEBUG
     char timeStr[64] = { 0 };
     time_t now = time(NULL);
     struct tm *tm_info = localtime(&now);

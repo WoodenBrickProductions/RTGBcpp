@@ -4,10 +4,9 @@
 class WorldStats
 {
 public:
-    WorldStats()
-    {
-        worldSpacing = 1;
-    }
+    bool worldSpacing = 1;
+    
+    WorldStats(){}
 
     virtual ~WorldStats() = default;
 
@@ -15,9 +14,6 @@ public:
     {
         worldSpacing = worldStats.worldSpacing;
     }
-
-    bool worldSpacing;
-
 };
 
 #endif

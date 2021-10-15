@@ -5,6 +5,7 @@
 #include "WorldStats.hpp"
 
 class TileObject;
+class PlayerController;
 class BoardController 
 {
 public:
@@ -16,10 +17,13 @@ public:
     bool ForceInitializePosition(TileObject& tileObject);
     float GetWorldTileSpacing() {return worldStats.worldSpacing;}
     Tile* GetTile(GridPosition position) {return tileMap->GetTile(position);}
+
+    PlayerController* GetPlayer() {return player;}
 private:
     BoardController();
     static BoardController* current;
     TileMap* tileMap;
+    PlayerController* player;
     WorldStats worldStats;
 };
 
