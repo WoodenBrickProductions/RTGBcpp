@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <vector>
+#include <string>
 
 const auto LOG_CALLBACK = LogCustom;
 
@@ -44,8 +45,9 @@ GameObject* gScene;
 GameState* gGameState;
 CameraController* gCameraController;
 std::vector<GameObject*> gGameObjects;
+std::vector<GameObject*> gGameObjectsToBeRemoved;
 
-void Instantiate(GameObject* gameObject, GameObject* scene, GameState* gameState)
+void InstantiateGameObject(GameObject* gameObject, GameObject* scene, GameState* gameState)
 {
     gGameObjects.push_back(gameObject);
     if(gameState->gameStarted)
@@ -54,7 +56,7 @@ void Instantiate(GameObject* gameObject, GameObject* scene, GameState* gameState
     }
 }
 
-void Destroy(GameObject* gameObject)
+void DestroyGameObject(GameObject* gameObject)
 {
     int size = gGameObjects.size();
     for(int i = 0; i < size;)
@@ -70,6 +72,20 @@ void Destroy(GameObject* gameObject)
         }
     }
     gameObject->Destroy();
+}
+
+void DestroyGameObjectDeffered(GameObject* gameObject)
+{
+    gGameObjectsToBeRemoved.push_back(gameObject);
+}
+
+void DestroyGameObjectsDeffered()
+{
+    while(gGameObjectsToBeRemoved.size() != 0)
+    {
+        DestroyGameObject(gGameObjectsToBeRemoved.back()); // LLO
+        gGameObjectsToBeRemoved.pop_back();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,14 +155,20 @@ void LoadSystemObjects(Resources& resources)
     player->baseColor = BLUE;
     gScene->AddChild(*player);
 
-    // BasicEnemy : Testing
-    BasicEnemyController* enemy = new BasicEnemyController();
-    enemy->transform.translation = {5, 0, 5};
-    enemy->LoadGameObjectModel(resources.cubeTriangulated);
-    enemy->baseColor = PINK;
-    gScene->AddChild(*enemy);
+    // Block at enemy location
+    // TileObject* block = new TileObject(*wall);
+    // block->transform.translation = {5, 0 , 5};
+    // gScene->AddChild(*block);
 
-    gCameraController->transform.translation = {0, 10.0f, 4.0f};
+    // BasicEnemy : Testing
+    // BasicEnemyController* enemy = new BasicEnemyController();
+    // enemy->name = "Basic enemy";
+    // enemy->transform.translation = {5, 0, 5};
+    // enemy->LoadGameObjectModel(resources.cubeTriangulated);
+    // enemy->baseColor = PINK;
+    // gScene->AddChild(*enemy);
+
+    gCameraController->transform.translation = {0.0f, 10.0f, 4.0f};
     gCameraController->target = player;
     gScene->AddChild(*gCameraController);
 }
@@ -158,6 +180,7 @@ int main()
     Resources resources;
     gScene = new GameObject();
     gGameState = new GameState();
+    gGameState->gameStarted = false;
     InitWindow(SCREENWIDTH, SCREENHEIGHT, "raylib"); 
     LoadExternalData(resources);
     
@@ -168,8 +191,16 @@ int main()
 
     for(int i = 0; i < gScene->GetChildCount(); i++)
     {
-        gScene->GetChild(i)->Start(gScene, gGameState); 
+        GameObject* object = gScene->GetChild(i);
+        if(!object->started)
+        {
+            gScene->GetChild(i)->Start(gScene, gGameState);
+        }
     }
+    gCameraController->Start(gScene, gGameState);
+
+    DestroyGameObjectsDeffered();
+    gGameState->gameStarted = true;
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -198,10 +229,12 @@ int main()
             EndMode3D();
 
             DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
-
             DrawFPS(10, 10);
 
         EndDrawing();
+
+        DestroyGameObjectsDeffered();
+
         //----------------------------------------------------------------------------------
     }
 
@@ -213,6 +246,7 @@ int main()
 
     return 0;
 }
+
 
 
 

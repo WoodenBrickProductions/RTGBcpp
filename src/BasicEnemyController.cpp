@@ -175,6 +175,10 @@ BasicEnemyController::BasicEnemyController()
 void BasicEnemyController::Start(GameObject* scene, GameState* gameState)
 {
     UnitController::Start(scene, gameState);
+    if(!started)
+    {
+        return;
+    }
     tag = "Enemy";
     aiStats.wanderTime = aiStats.wanderCooldown + GetRandomValue(0, 1);
     idleState = new BE_IdleState(this);

@@ -10,8 +10,7 @@ TileObject::TileObject()
 
 void TileObject::Start(GameObject* scene, GameState* gameState)
 {
-    _CRT_UNUSED(scene);
-    _CRT_UNUSED(gameState);
+    GameObject::Start(scene, gameState);
     
     if(occupiedTile == nullptr)
     {
@@ -27,8 +26,9 @@ void TileObject::Start(GameObject* scene, GameState* gameState)
 void TileObject::OnFailedToInitialize()
 {
     std::string out = "Destroying TileObject: " + name;
+    started = false;
     LogCustom(0, out.c_str(), nullptr);
-    Destroy();
+    DestroyGameObjectDeffered(this);
 }
 
 void TileObject::SetOccupiedTile(Tile* tile)

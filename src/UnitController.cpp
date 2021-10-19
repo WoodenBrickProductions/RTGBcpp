@@ -102,6 +102,10 @@ UnitController::UnitController()
 void UnitController::Start(GameObject* scene, GameState* gameState) 
 {
     TileObject::Start(scene, gameState);
+    if(!started)
+    {
+        return;
+    }
     pausedState = new PausedState();
     idleState = new IdleState();
     movingState = new MovingState();
@@ -132,7 +136,7 @@ void UnitController::OnDeath(DamageSource damageSource)
     occupiedTile->ClearTileObject();
     LogCustom(0, "This unit has been killed", nullptr);
     // TODO: Update UI
-    Destroy();
+    DestroyGameObjectDeffered(this);
 }
 GameObject* UnitController::GetGameObject() 
 {

@@ -19,7 +19,9 @@ struct GameState
     bool gameStarted;
 };
 
-void Instantiate(GameObject* gameObject, GameObject* scene, GameState* gameState);
-void Destroy(GameObject* gameObject);
+void InstantiateGameObject(GameObject* gameObject, GameObject* scene, GameState* gameState);
+void DestroyGameObject(GameObject* gameObject);
+void DestroyGameObjectDeffered(GameObject* gameObject);
+
 
 #endif

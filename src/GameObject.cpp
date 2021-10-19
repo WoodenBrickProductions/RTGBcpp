@@ -30,6 +30,11 @@ GameObject::GameObject(std::string name) : GameObject()
 void GameObject::Start(GameObject* scene, GameState* gameState) 
 {
     started = true;
+    if(parent == nullptr)
+    {
+        scene->AddChild(*this);
+        SetParent(*scene);
+    }
 }
 
 void GameObject::Awake(GameObject* scene, GameState* gameState)
@@ -94,6 +99,7 @@ void GameObject::AddChild(GameObject& object)
     {
         // printf("Adding child \n");
         children.push_back(&object);
+        object.SetParent(*this);
     }
 }
 void GameObject::RemoveChild(GameObject& object)
@@ -102,6 +108,7 @@ void GameObject::RemoveChild(GameObject& object)
     {
         if(children[i] == &object)
         {
+            object.parent = nullptr;
             children[i] = children[children.size() - 1];
             children.pop_back();
             break;
@@ -121,10 +128,6 @@ GameObject* GameObject::GetChild(size_t index)
 
 void GameObject::SetParent(GameObject& object)
 {
-    void* ptr = &parent;
-    // printf("%p \n", ptr);
-    // printf("Is parent != nullptr %d", (parent != nullptr));
-    // printf("Is object != parent %d \n", (object != parent));
     if(parent != nullptr && &object != parent)
     {
         // printf("Child already has parent \n");
@@ -152,6 +155,7 @@ std::string GameObject::ToString()
 
 void GameObject::Destroy()
 {
+    LogCustom(0, "Destroying!", nullptr);
     GameObject* parent = GetParent();
     if(parent != nullptr)
     {
