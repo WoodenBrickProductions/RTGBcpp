@@ -11,6 +11,7 @@ protected:
     friend class BE_IdleState;
     friend class BE_MovingState;
     friend class BE_ChasingState;
+    friend class BE_AttackingState;
     Blackboard blackboard;
 
     std::vector<GridPosition> possibleMoves;

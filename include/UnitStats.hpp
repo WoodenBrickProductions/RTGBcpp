@@ -9,9 +9,11 @@ public:
     int attackDamage = 1;
     float attackSpeed = 1;
     int attackRange = 1;
+    float attackTime = 0;
     int experience = 1;
     int level = 1;
     float movementSpeed = 1;
+    
 
     UnitStats(){}
 
@@ -25,6 +27,7 @@ public:
         experience = unitStats.experience;
         level = unitStats.level;
         attackRange = unitStats.attackRange;
+        attackTime = unitStats.attackTime;
         attackSpeed = unitStats.attackSpeed;
         movementSpeed = unitStats.movementSpeed;
     }

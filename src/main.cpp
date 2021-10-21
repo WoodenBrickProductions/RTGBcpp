@@ -174,7 +174,8 @@ void LoadSystemObjects(Resources& resources)
         enemy->transform.translation = {5, 0, 5};
         enemy->LoadGameObjectModel(resources.cubeTriangulated);
         enemy->baseColor = PINK;
-        enemy->aiStats.agroRange = 3;
+        enemy->aiStats.agroRange = 5;
+        enemy->aiStats.chasingRange = 10;
         gScene->AddChild(*enemy);
     }
 

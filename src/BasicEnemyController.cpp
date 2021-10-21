@@ -1,6 +1,14 @@
 #include "BasicEnemyController.hpp"
 #include "State.hpp"
 #include "PlayerController.hpp"
+#include <queue>
+#include <algorithm>
+
+struct Node {
+public:
+    GridPosition position;
+    std::vector<GridPosition> history;
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Idle State
@@ -13,6 +21,7 @@ public:
     BE_IdleState(BasicEnemyController* unit)
     {
         this->unit = unit;
+        name = "IdleState";
     }
 
     virtual ~BE_IdleState() = default;
@@ -40,7 +49,7 @@ public:
 
     void Entry(State* oldState) override
     {
-
+        unit->aiStats.chasing = false;
     }
 
     void Exit(State* newState) override
@@ -66,6 +75,7 @@ public:
     BE_MovingState(BasicEnemyController* unit, float movementSnapThreshold = 0.5f)
     {
         this->unit = unit;
+        name = "MovingState";
         moveTime = 0;
         stoppedMoving = false;
         this->movementSnapThreshold = movementSnapThreshold;
@@ -90,7 +100,7 @@ public:
 
         if(moveTime <= 0)
         {
-            unit->ChangeState(unit->idleState);
+            unit->ChangeState(unit->aiStats.chasing ? unit->chasingState : unit->idleState);
         }
         
         moveTime -= GetFrameTime();
@@ -122,6 +132,7 @@ public:
     BE_ChasingState(BasicEnemyController* unit, float movementSnapThreshold = 0.5f)
     {
         this->unit = unit;
+        name = "ChasingState";
     }
 
     virtual ~BE_ChasingState() = default;
@@ -138,8 +149,15 @@ public:
             } 
             else if(BasicEnemyController::IsObjectWithinRange(unit, player, unit->aiStats.chasingRange))
             {
-                unit->Chase(player);
-                chasingTime = unit->aiStats.chasingCooldown;    
+                State* newState = unit->Chase(player);
+                if(newState != unit->currentState)
+                {
+                    unit->ChangeState(newState);
+                }
+                else
+                {
+                    chasingTime = unit->aiStats.chasingCooldown;    
+                }
             }
             else
             {
@@ -155,9 +173,68 @@ public:
 
     void Entry(State* oldState) override
     {
+        unit->aiStats.chasing = true;
         LogCustom(0, "Entered chasingState", nullptr);
     }
     void Exit(State* newState) override
+    {
+
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Attacking State
+
+class BE_AttackingState : public State
+{
+public:
+    BasicEnemyController* unit;
+    Tile* targetTile;
+
+    BE_AttackingState(BasicEnemyController* unit)
+    {
+        this->unit = unit;
+        name = "AttackingState";
+        targetTile = nullptr;
+    }
+
+    void Execute() override
+    {
+        if(unit->unitStats.attackTime <= 0)
+        {
+            TileObject* occupiedTileObject = targetTile->GetOccupiedTileObject();
+            if(occupiedTileObject != nullptr && occupiedTileObject->tag == "Player")
+            {
+                UnitController* targetUnit = (UnitController*) occupiedTileObject;
+                if(targetUnit->unitStatus.attackable)
+                {
+                    if(unit->Attack(targetUnit))
+                    {
+                        unit->unitStats.attackTime = 1.0f / unit->unitStats.attackSpeed;  
+                    }
+                    else
+                    {
+                        unit->aiStats.chasing = false;
+                        unit->ChangeState(unit->idleState);
+                    }
+                }
+            }
+        }
+        
+    }
+
+    void Entry(State* oldState) override
+    {
+        targetTile = static_cast<Tile*>(unit->blackboard.Get("targetTile"));
+        
+        if(targetTile == nullptr)
+        {
+            unit->ChangeState(unit->idleState);
+            return;
+        }
+    }
+
+    virtual void Exit(State* newState) override
     {
 
     }
@@ -189,14 +266,15 @@ void BasicEnemyController::Start(GameObject* scene, GameState* gameState)
     idleState = new BE_IdleState(this);
     movingState = new BE_MovingState(this);
     chasingState = new BE_ChasingState(this);
+    attackingState = new BE_AttackingState(this);
     ChangeState(idleState);
 }
 
 void BasicEnemyController::Update(GameObject* scene, GameState* gameState)
 {
-    _CRT_UNUSED(scene);
-    _CRT_UNUSED(gameState);
-    
+    std::string out = "Current state: ";
+    out.append(currentState->name);
+    LogCustom(0, out.c_str());
     currentState->Execute();
 }
 
@@ -225,7 +303,61 @@ bool BasicEnemyController::IsObjectWithinRange(TileObject* object1, TileObject* 
 
 std::vector<GridPosition> BasicEnemyController::FindPathToObject(TileObject* object)
 {
-    LogCustom(0, "Pathfinding not yet implemented!", nullptr);
+    Node start;
+    start.position = occupiedTile->gridPosition;
+    std::vector<GridPosition> result;
+    std::vector<GridPosition> visited;
+    std::queue<Node> work;
+
+    visited.push_back(start.position);
+    work.push(start);
+
+    while(work.size() > 0)
+    {
+        Node current = work.front();
+        work.pop();
+
+        if((int) current.history.size() > aiStats.chasingRange)
+        {
+            LogCustom(0, "Player outside range");
+            return {};
+        }
+        Tile* currentTile = boardController->GetTile(current.position);
+        if(currentTile != nullptr)
+        {
+            TileObject* currentOccupiedObject = currentTile->GetOccupiedTileObject();
+            if(currentOccupiedObject != nullptr && currentOccupiedObject->tag == "Player")
+            {
+                // Found Node
+                result = current.history;
+                result.push_back(current.position);
+                std::string out = "Result size: ";
+                out.append("" + result.size()); 
+                LogCustom(0, out.c_str());
+                return result;
+            }
+
+            for(unsigned int i = 0; i < possibleMoves.size(); i++)
+            {
+                Tile* neighborTile = boardController->GetTile(possibleMoves[i] + current.position);
+                if(neighborTile != nullptr && !neighborTile->staticTile && 
+                (neighborTile->GetOccupiedTileObject() == nullptr || neighborTile->GetOccupiedTileObject()->tag == "Player"))
+                {
+                    Node currentNeighbor;
+                    currentNeighbor.position = neighborTile->gridPosition;
+                    if(std::find(visited.begin(), visited.end(), currentNeighbor.position) == visited.end())
+                    {
+                        currentNeighbor.history = (current.history);
+                        currentNeighbor.history.push_back(current.position);
+                        visited.push_back(currentNeighbor.position);
+                        work.push(currentNeighbor);
+                    }
+                }
+            }
+        }
+    }
+
+    LogCustom(0, "Pathfinding default return");
     return {};
 }
 
@@ -300,10 +432,23 @@ State* BasicEnemyController::Chase(TileObject* object)
 {
     std::vector<GridPosition> path = FindPathToObject(object);
     
-    if(path.size() > 1 && BoardController::Get()->GetTile(path[1])->SetTileObject(this))
+    if(path.size() == 0)
     {
+        return idleState;
+    }
+
+    if((int) path.size() < unitStats.attackRange)
+    {
+        return attackingState;
+    }
+
+    Tile* tile = BoardController::Get()->GetTile(path[1]);
+    if(tile->SetTileObject(this))
+    {
+        blackboard.Insert("targetTile", tile);
         return movingState;
     }
+
     return chasingState;
 }
 

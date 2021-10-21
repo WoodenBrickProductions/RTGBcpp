@@ -4,6 +4,7 @@
 class State
 {
 public:
+    std::string name = "State";
     virtual ~State() = default;
     virtual void Execute() = 0;
     virtual void Entry(State* oldState) = 0;

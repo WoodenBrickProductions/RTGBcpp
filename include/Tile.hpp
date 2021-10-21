@@ -23,6 +23,10 @@ struct GridPosition {
         return GridPosition{pos.x + x, pos.y + y};
     }
 
+    bool operator==(const GridPosition& pos) const {
+        return (x == pos.x) && (y == pos.y);
+    }
+
     static int Distance(GridPosition p1, GridPosition p2)
     {
         LogCustom(0, "Distance is being called", nullptr);
