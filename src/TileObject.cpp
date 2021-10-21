@@ -39,6 +39,10 @@ void TileObject::SetOccupiedTile(Tile* tile)
 
 void TileObject::Destroy()
 {
-    occupiedTile->ClearTileObject();
+    if(occupiedTile != nullptr)
+    {
+        occupiedTile->ClearTileObject();
+    }
+ 
     GameObject::Destroy();
 }

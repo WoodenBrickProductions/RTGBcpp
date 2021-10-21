@@ -18,12 +18,11 @@ public:
     float GetWorldTileSpacing() {return worldStats.worldSpacing;}
     Tile* GetTile(GridPosition position) {return tileMap->GetTile(position);}
 
-    PlayerController* GetPlayer() {return player;}
+    PlayerController* player;
 private:
     BoardController();
     static BoardController* current;
     TileMap* tileMap;
-    PlayerController* player;
     WorldStats worldStats;
 };
 

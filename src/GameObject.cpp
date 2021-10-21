@@ -155,15 +155,26 @@ std::string GameObject::ToString()
 
 void GameObject::Destroy()
 {
-    LogCustom(0, "Destroying!", nullptr);
+    active = false;
+    LogCustom(0, "Destroying!");
+    LogCustom(0, "Destroying!");
+    LogCustom(0, "Destroying!");
+    LogCustom(0, "Destroying!");
     GameObject* parent = GetParent();
     if(parent != nullptr)
     {
         parent->RemoveChild(*this);
     }
-    for(auto child : children)
+    // for(auto child : children)
+    // {
+    //     child->Destroy();
+    // }
+    while(children.size() != 0)
     {
-        child->Destroy();
+        GameObject* object = children.back();
+        object->Destroy();
+        children.pop_back();
     }
+
     delete this;
 }

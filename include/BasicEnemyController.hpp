@@ -13,7 +13,6 @@ protected:
     friend class BE_ChasingState;
     Blackboard blackboard;
 
-    AIStats aiStats;
     std::vector<GridPosition> possibleMoves;
     bool stoppedMoving;
     GridPosition lastPlayerPosition;
@@ -27,8 +26,12 @@ protected:
 public:
     BasicEnemyController();
     virtual ~BasicEnemyController() = default;
+    
+    AIStats aiStats;
+    
     void Start(GameObject* scene, GameState* gameState) override;
     void Update(GameObject* scene, GameState* gameState) override;
     void OnTargetObjectKilled(IAttackable* target) override;
+    
 };
 #endif

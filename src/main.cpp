@@ -59,19 +59,22 @@ void InstantiateGameObject(GameObject* gameObject, GameObject* scene, GameState*
 void DestroyGameObject(GameObject* gameObject)
 {
     int size = gGameObjects.size();
-    for(int i = 0; i < size;)
-    {
-        if(gGameObjects[i] == gameObject)
-        {
-            std::swap(gGameObjects[i], gGameObjects[--size]);
-            gGameObjects.pop_back();
-        }
-        else
-        {
-            i++;
-        }
-    }
+    // for(int i = 0; i < size;)
+    // {
+    //     if(gGameObjects[i] == gameObject)
+    //     {
+    //         std::swap(gGameObjects[i], gGameObjects[--size]);
+    //         gGameObjects.pop_back();
+    //     }
+    //     else
+    //     {
+    //         i++;
+    //     }
+    // }
+    LogCustom(0, "DestroyGameObjects is called");
+    LogCustom(0, std::to_string(gameObject == nullptr).c_str());
     gameObject->Destroy();
+    LogCustom(0, "DestroyGameObjects finished");
 }
 
 void DestroyGameObjectDeffered(GameObject* gameObject)
@@ -83,9 +86,12 @@ void DestroyGameObjectsDeffered()
 {
     while(gGameObjectsToBeRemoved.size() != 0)
     {
+        printf(std::to_string(gGameObjectsToBeRemoved.size()).c_str());
         DestroyGameObject(gGameObjectsToBeRemoved.back()); // LLO
+        LogCustom(0, "Object destroyed");
         gGameObjectsToBeRemoved.pop_back();
     }
+    // LogCustom(0, "Deffered Object destruction finished");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,6 +159,7 @@ void LoadSystemObjects(Resources& resources)
     player->transform.translation = {1, 0, 1};
     player->LoadGameObjectModel(resources.cubeTriangulated);
     player->baseColor = BLUE;
+    BoardController::Get()->player = player;
     gScene->AddChild(*player);
 
     // Block at enemy location
@@ -161,12 +168,15 @@ void LoadSystemObjects(Resources& resources)
     // gScene->AddChild(*block);
 
     // BasicEnemy : Testing
-    // BasicEnemyController* enemy = new BasicEnemyController();
-    // enemy->name = "Basic enemy";
-    // enemy->transform.translation = {5, 0, 5};
-    // enemy->LoadGameObjectModel(resources.cubeTriangulated);
-    // enemy->baseColor = PINK;
-    // gScene->AddChild(*enemy);
+    {
+        BasicEnemyController* enemy = new BasicEnemyController();
+        enemy->name = "Basic enemy";
+        enemy->transform.translation = {5, 0, 5};
+        enemy->LoadGameObjectModel(resources.cubeTriangulated);
+        enemy->baseColor = PINK;
+        enemy->aiStats.agroRange = 3;
+        gScene->AddChild(*enemy);
+    }
 
     gCameraController->transform.translation = {0.0f, 10.0f, 4.0f};
     gCameraController->target = player;
@@ -189,6 +199,7 @@ int main()
     InitializeGameSystems();
     LoadSystemObjects(resources);
 
+    LogCustom(0, "Starting GameObjects", nullptr);
     for(int i = 0; i < gScene->GetChildCount(); i++)
     {
         GameObject* object = gScene->GetChild(i);
@@ -197,9 +208,11 @@ int main()
             gScene->GetChild(i)->Start(gScene, gGameState);
         }
     }
+    LogCustom(0, "Starting CameraController", nullptr);
     gCameraController->Start(gScene, gGameState);
-
+    LogCustom(0, "GameObjects started, destroying failures", nullptr);
     DestroyGameObjectsDeffered();
+    LogCustom(0, "Finished destroying GameObjects", nullptr);
     gGameState->gameStarted = true;
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second

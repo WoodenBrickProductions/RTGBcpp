@@ -18,7 +18,7 @@ public:
     // State'ai valdo playerį, o ne playeris state'us. More modular approach
     void Execute()
     {
-        LogCustom(0, "Executing in IdleState", nullptr);
+        // LogCustom(0, "Executing in IdleState", nullptr);
 
         input = player->GetInputDirection();
         if(input != None)

@@ -37,11 +37,12 @@ void CameraController::Start(GameObject* scene, GameState* gameState)
 }
 void CameraController::Update(GameObject* scene, GameState* gameState) {
 
-    std::string output = std::to_string(transform.translation.x) + " " + std::to_string(transform.translation.y) + " " +std::to_string(transform.translation.z);
-    LogCustom(0, output.c_str(), nullptr);
+    // Log Camera Position
+    // std::string output = std::to_string(transform.translation.x) + " " + std::to_string(transform.translation.y) + " " +std::to_string(transform.translation.z);
+    // LogCustom(0, output.c_str(), nullptr);
     if(followPosition != target->transform.translation)
     {
-        LogCustom(0, "Camera is moving", nullptr);
+        // LogCustom(0, "Camera is moving", nullptr);
         Vector3 vec1 = target->transform.translation - followPosition;
         Vector3 vec2 = vec1.Normalized() * GetFrameTime() * cameraMovementSpeed * BoardController::Get()->GetWorldTileSpacing();
         Vector3 vec3 = (vec1.Magnitude() <= vec2.Magnitude() ? vec1 : vec2);

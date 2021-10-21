@@ -9,18 +9,19 @@ class BE_IdleState : public State
 {
 public: 
     BasicEnemyController* unit;
-    
 
     BE_IdleState(BasicEnemyController* unit)
     {
         this->unit = unit;
     }
 
-    void Execute() 
+    virtual ~BE_IdleState() = default;
+
+    void Execute() override
     {
         if(!unit->aiStats.chasing && unit->aiStats.wanderTime <= 0)
         {
-            PlayerController* player = BoardController::Get()->GetPlayer();
+            PlayerController* player = BoardController::Get()->player;
             // Could move distanceToPlayer to blackboard and add timeSinceLastPlayerPositionCheck
             LogCustom(0, "Wandering...", nullptr);
             State* newState = unit->Wander(); 
@@ -37,12 +38,12 @@ public:
         }
     }
 
-    void Entry(State* oldState) 
+    void Entry(State* oldState) override
     {
 
     }
 
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
 
     }
@@ -72,7 +73,9 @@ public:
         targetTile = nullptr;
     }
 
-    void Execute() 
+    virtual ~BE_MovingState() = default;
+
+    void Execute() override
     {
         if (moveTime >= movementSnapThreshold / unit->unitStats.movementSpeed)
         {
@@ -92,7 +95,7 @@ public:
         
         moveTime -= GetFrameTime();
     }
-    void Entry(State* oldState) 
+    void Entry(State* oldState) override
     {
         LogCustom(0, "Entering Moving State", nullptr);
         targetTile = static_cast<Tile*>(unit->blackboard.Get("targetTile"));
@@ -101,7 +104,7 @@ public:
         direction = (targetTile->transform.translation - unit->transform.translation) 
         * (1 / movementSnapThreshold);
     }
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
 
     }
@@ -121,9 +124,11 @@ public:
         this->unit = unit;
     }
 
-    void Execute() 
+    virtual ~BE_ChasingState() = default;
+
+    void Execute() override
     {
-        PlayerController* player = BoardController::Get()->GetPlayer();
+        PlayerController* player = BoardController::Get()->player;
 
         if(chasingTime <= 0)
         {
@@ -148,11 +153,11 @@ public:
         }
     }
 
-    void Entry(State* oldState) 
+    void Entry(State* oldState) override
     {
         LogCustom(0, "Entered chasingState", nullptr);
     }
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
 
     }
@@ -211,8 +216,6 @@ bool BasicEnemyController::IsObjectWithinRange(TileObject* object1, TileObject* 
     // }
     // printf("dafuq is going on");
 
-
-
     // LogCustom(0, "before getting distance", nullptr);
     // int distance = GridPosition::Distance(position, object->GetOccupiedTile()->gridPosition);
     // LogCustom(0, "after getting distance", nullptr);
@@ -244,25 +247,24 @@ void BasicEnemyController::OnTargetObjectKilled(IAttackable* target)
 State* BasicEnemyController::Wander()
 {
     // Transition to chasing
-    // PlayerController* player = BoardController::Get()->GetPlayer();
+    PlayerController* player = BoardController::Get()->player;
 
-    // if(player == nullptr)
-    // {
-    //     LogCustom(0, "PLAYER IS NULL DAFUQ", nullptr);
-    // }
-    // printf("Before IsObjectWithinRange");
-    // if(player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(this, player, aiStats.agroRange))
-    // {
-    //     // LLO here. Something doesn't make sense at all. Maybe scope problems?
+    if(player == nullptr)
+    {
+        LogCustom(0, "PLAYER IS NULL DAFUQ", nullptr);
+    }
+    printf("Before IsObjectWithinRange");
+    if(player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(this, player, aiStats.agroRange))
+    {
+        // LLO here. Something doesn't make sense at all. Maybe scope problems?
     
-    //     printf("dafuq is going on");
-    //     // LogCustom(0, "test", nullptr);
-    //     // blackboard.Insert("targetTile", player->GetOccupiedTile());
-    //     // LogCustom(0, "test", nullptr);
-    //     // return chasingState;
-    // }
+        LogCustom(0, "test", nullptr);
+        blackboard.Insert("targetTile", player->GetOccupiedTile());
+        LogCustom(0, "test", nullptr);
+        return chasingState;
+    }
 
-    // LogCustom(0, "gonna return chasingState", nullptr);
+    LogCustom(0, "gonna return chasingState", nullptr);
 
     int randomDirection = GetRandomValue(0, 4);
 
