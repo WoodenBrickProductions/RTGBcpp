@@ -169,6 +169,10 @@ void UnitController::MoveToTile(Tile* tile, Vector3 direction)
 
 void UnitController::SetHealth(int healthChange)
 {
+    std::string out = name;
+    out.append(" took damage: ");
+    out.append("" + healthChange);
+    LogCustom(0, out.c_str());
     if (unitStats.currentHealth + healthChange <= 0)
     {
         unitStats.currentHealth = 0;

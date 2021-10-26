@@ -145,6 +145,7 @@ public:
         {
             if(player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(unit, player, unit->unitStats.attackRange))
             {
+                unit->blackboard.Insert("targetTile", player->GetOccupiedTile());
                 unit->ChangeState(unit->attackingState);
             } 
             else if(BasicEnemyController::IsObjectWithinRange(unit, player, unit->aiStats.chasingRange))
@@ -202,10 +203,11 @@ public:
     {
         if(unit->unitStats.attackTime <= 0)
         {
+            LogCustom(0, "Attacking");
             TileObject* occupiedTileObject = targetTile->GetOccupiedTileObject();
             if(occupiedTileObject != nullptr && occupiedTileObject->tag == "Player")
             {
-                UnitController* targetUnit = (UnitController*) occupiedTileObject;
+                PlayerController* targetUnit = (PlayerController*) occupiedTileObject;
                 if(targetUnit->unitStatus.attackable)
                 {
                     if(unit->Attack(targetUnit))
@@ -218,6 +220,14 @@ public:
                         unit->ChangeState(unit->idleState);
                     }
                 }
+                else
+                {
+                    unit->ChangeState(unit->idleState);
+                }
+            }
+            else
+            {
+                unit->ChangeState(unit->chasingState);
             }
         }
         
@@ -226,7 +236,8 @@ public:
     void Entry(State* oldState) override
     {
         targetTile = static_cast<Tile*>(unit->blackboard.Get("targetTile"));
-        
+        unit->unitStats.attackTime = 1.0f / unit->unitStats.attackSpeed;  
+
         if(targetTile == nullptr)
         {
             unit->ChangeState(unit->idleState);
@@ -276,6 +287,11 @@ void BasicEnemyController::Update(GameObject* scene, GameState* gameState)
     out.append(currentState->name);
     LogCustom(0, out.c_str());
     currentState->Execute();
+
+    if(unitStats.attackTime >= 0)
+    {
+        unitStats.attackTime -= GetFrameTime();
+    }
 }
 
 bool BasicEnemyController::IsObjectWithinRange(TileObject* object1, TileObject* object2, int range)
@@ -332,7 +348,9 @@ std::vector<GridPosition> BasicEnemyController::FindPathToObject(TileObject* obj
                 result = current.history;
                 result.push_back(current.position);
                 std::string out = "Result size: ";
-                out.append("" + result.size()); 
+                out.append("" + result.size());
+                out.append("\n");
+                out.append(result.back().ToString() + "\n");
                 LogCustom(0, out.c_str());
                 return result;
             }
@@ -439,6 +457,7 @@ State* BasicEnemyController::Chase(TileObject* object)
 
     if((int) path.size() < unitStats.attackRange)
     {
+        blackboard.Insert("targetTile", BoardController::Get()->GetTile(path.back()));
         return attackingState;
     }
 

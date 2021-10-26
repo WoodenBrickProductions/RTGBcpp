@@ -44,6 +44,7 @@ BoardController* gBoardController;
 GameObject* gScene;
 GameState* gGameState;
 CameraController* gCameraController;
+PlayerController* gPlayerController;
 std::vector<GameObject*> gGameObjects;
 std::vector<GameObject*> gGameObjectsToBeRemoved;
 
@@ -155,12 +156,13 @@ void LoadSystemObjects(Resources& resources)
     gScene->AddChild(*tileMap);
 
     // Player 
-    PlayerController* player = new PlayerController();
-    player->transform.translation = {1, 0, 1};
-    player->LoadGameObjectModel(resources.cubeTriangulated);
-    player->baseColor = BLUE;
-    BoardController::Get()->player = player;
-    gScene->AddChild(*player);
+    gPlayerController = new PlayerController();
+    gPlayerController->transform.translation = {1, 0, 1};
+    gPlayerController->LoadGameObjectModel(resources.cubeTriangulated);
+    gPlayerController->baseColor = BLUE;
+    gPlayerController->unitStats.maxHealth = 20;
+    BoardController::Get()->player = gPlayerController;
+    gScene->AddChild(*gPlayerController);
 
     // Block at enemy location
     // TileObject* block = new TileObject(*wall);
@@ -180,7 +182,7 @@ void LoadSystemObjects(Resources& resources)
     }
 
     gCameraController->transform.translation = {0.0f, 10.0f, 4.0f};
-    gCameraController->target = player;
+    gCameraController->target = gPlayerController;
     gScene->AddChild(*gCameraController);
 }
 
@@ -243,6 +245,8 @@ int main()
             EndMode3D();
 
             DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
+            DrawText("Player hp: ", 10, 70, 20, DARKGRAY);
+            DrawText(std::to_string(gPlayerController->unitStats.currentHealth).c_str(), 30, 70, 20, RED);
             DrawFPS(10, 10);
 
         EndDrawing();
