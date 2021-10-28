@@ -35,6 +35,10 @@ void GameObject::Start(GameObject* scene, GameState* gameState)
         scene->AddChild(*this);
         SetParent(*scene);
     }
+    for(GameObject* child : children)
+    {
+        child->Start(scene, gameState);
+    }
 }
 
 void GameObject::Awake(GameObject* scene, GameState* gameState)
@@ -126,6 +130,19 @@ GameObject* GameObject::GetChild(size_t index)
     return nullptr;
 }
 
+GameObject* GameObject::GetChild(std::string name)
+{
+    for(uint32_t i = 0; i < children.size(); i++)
+    {
+        if(children[i]->name == name)
+        {
+            return children[i];
+        }
+    }
+
+    return nullptr;
+}
+
 void GameObject::SetParent(GameObject& object)
 {
     if(parent != nullptr && &object != parent)
@@ -150,9 +167,6 @@ std::string GameObject::ToString()
 void GameObject::Destroy()
 {
     active = false;
-    LogCustom(0, "Destroying!");
-    LogCustom(0, "Destroying!");
-    LogCustom(0, "Destroying!");
     LogCustom(0, "Destroying!");
     GameObject* parent = GetParent();
     if(parent != nullptr)

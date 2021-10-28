@@ -21,6 +21,7 @@ void CameraController::Start(GameObject* scene, GameState* gameState)
     started = true;
     if(main == nullptr)
     {
+        LogCustom(0, "Setting main camera");
         main = this;
         SetCameraMode(camera, CAMERA_CUSTOM);
     }

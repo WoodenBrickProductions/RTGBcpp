@@ -95,7 +95,7 @@ public:
 UnitController::UnitController()
 {
     moveTime = 0;
-    attackTime = 0;
+    attackTime = -0.01f;
     attackCooldown = 1;
     currentState = nullptr;
     worldMoveStep = 1;

@@ -27,11 +27,13 @@
 #include "Tile.hpp"
 #include "PlayerController.hpp"
 #include "BasicEnemyController.hpp"
+#include "UnitIndicator.hpp"
 #include "CustomLogger.hpp"
 #include <stdio.h>
 #include <time.h>
 #include <vector>
 #include <string>
+
 
 const auto LOG_CALLBACK = LogCustom;
 
@@ -188,6 +190,32 @@ void LoadSystemObjects(Resources& resources)
         enemy->aiStats.agroRange = 5;
         enemy->aiStats.chasingRange = 10;
         gScene->AddChild(*enemy);
+        {
+            UnitIndicator* unitIndicator = new UnitIndicator();
+            unitIndicator->transform.translation = {0, 1.0f, 0};
+            unitIndicator->LoadTextureUnIn(&resources.placeholderTexture);
+            enemy->AddChild(*unitIndicator);
+        }
+    }
+
+    {
+        BasicEnemyController* enemy = new BasicEnemyController();
+        enemy->name = "Basic enemy 2";
+        enemy->transform.translation = {6, 0, 6};
+        enemy->LoadGameObjectModel(resources.cubeTriangulated);
+        enemy->baseColor = BROWN;
+        enemy->aiStats.agroRange = 5;
+        enemy->aiStats.chasingRange = 10;
+        enemy->unitStats.movementSpeed = 2;
+        enemy->unitStats.maxHealth = 10;
+        enemy->unitStats.attackSpeed = 1.5f;
+        gScene->AddChild(*enemy);
+        {
+            UnitIndicator* unitIndicator = new UnitIndicator();
+            unitIndicator->transform.translation = {0, 1.0f, 0};
+            unitIndicator->LoadTextureUnIn(&resources.placeholderTexture);
+            enemy->AddChild(*unitIndicator);
+        }
     }
 
     gCameraController->transform.translation = {0.0f, 10.0f, 4.0f};

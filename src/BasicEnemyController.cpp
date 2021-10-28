@@ -143,6 +143,12 @@ public:
 
         if(chasingTime <= 0)
         {
+            if(player == nullptr)
+            {
+                unit->ChangeState(unit->idleState);
+                return;
+            }
+
             if(player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(unit, player, unit->unitStats.attackRange))
             {
                 unit->blackboard.Insert("targetTile", player->GetOccupiedTile());

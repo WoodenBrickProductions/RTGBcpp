@@ -1,5 +1,5 @@
 #ifndef GAMEOBJECT_H
-#define GAMEOJBECT_H
+#define GAMEOBJECT_H
 
 #include "GameController.hpp"
 #include<vector>
@@ -23,7 +23,6 @@ public:
     bool started;
     bool active;
 
-
     virtual void Awake(GameObject* scene, GameState* gameState);
     virtual void Start(GameObject* scene, GameState* gameState);
     virtual void Update(GameObject* scene, GameState* gameState);
@@ -39,6 +38,8 @@ public:
     void SetParent(GameObject& object);
     GameObject* GetParent() {return parent;}
     GameObject* GetChild(size_t index);
+    GameObject* GetChild(std::string name);
+
     //Should be moved to draw component
 protected:
     GameObject* parent;
