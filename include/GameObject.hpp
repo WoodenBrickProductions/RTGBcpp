@@ -21,6 +21,8 @@ public:
     Transform transform;
     Color baseColor;
     bool started;
+    bool active;
+
 
     virtual void Awake(GameObject* scene, GameState* gameState);
     virtual void Start(GameObject* scene, GameState* gameState);
@@ -30,7 +32,6 @@ public:
     virtual std::string ToString();
 
     void LoadGameObjectModel(Model& model);
-    void SetActive(bool active);
     void SetChild(int index, GameObject& object);
     void AddChild(GameObject& object);
     void RemoveChild(GameObject& object);
@@ -47,7 +48,6 @@ protected:
     
     //Should be moved to draw component;
     Model* model;
-    bool active;
 };
 
 void Instantiate(GameObject& gameObject);

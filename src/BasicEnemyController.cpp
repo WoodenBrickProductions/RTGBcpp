@@ -230,7 +230,6 @@ public:
                 unit->ChangeState(unit->chasingState);
             }
         }
-        
     }
 
     void Entry(State* oldState) override
@@ -399,22 +398,11 @@ State* BasicEnemyController::Wander()
     // Transition to chasing
     PlayerController* player = BoardController::Get()->player;
 
-    if(player == nullptr)
+    if(player != nullptr && player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(this, player, aiStats.agroRange))
     {
-        LogCustom(0, "PLAYER IS NULL DAFUQ", nullptr);
-    }
-    printf("Before IsObjectWithinRange");
-    if(player->unitStatus.attackable && BasicEnemyController::IsObjectWithinRange(this, player, aiStats.agroRange))
-    {
-        // LLO here. Something doesn't make sense at all. Maybe scope problems?
-    
-        LogCustom(0, "test", nullptr);
         blackboard.Insert("targetTile", player->GetOccupiedTile());
-        LogCustom(0, "test", nullptr);
         return chasingState;
     }
-
-    LogCustom(0, "gonna return chasingState", nullptr);
 
     int randomDirection = GetRandomValue(0, 4);
 

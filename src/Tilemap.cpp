@@ -13,8 +13,8 @@ TileMap::TileMap()
     wallSpawning = 0.1f;
     spawnScaling = 0.05f;
     generateEnemies = false;
-    generateRandomSeed = true;
-    perlinSeed = 1001;
+    generateRandomSeed = false;
+    perlinSeed = 500;
     baseTile = nullptr;
     wallObject = nullptr;
     gridx = 1;

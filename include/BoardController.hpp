@@ -17,6 +17,7 @@ public:
     bool ForceInitializePosition(TileObject& tileObject);
     float GetWorldTileSpacing() {return worldStats.worldSpacing;}
     Tile* GetTile(GridPosition position) {return tileMap->GetTile(position);}
+    void OnPlayerDied() {player = nullptr;}
 
     PlayerController* player;
 private:

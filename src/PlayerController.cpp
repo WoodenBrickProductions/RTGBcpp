@@ -1,6 +1,7 @@
 #include "PlayerController.hpp"
 #include "CustomLogger.hpp"
 #include "State.hpp"
+#include "Data/DamageSource.hpp"
 
 class Player_IdleState : public State
 {
@@ -169,31 +170,7 @@ void PlayerController::OnFailedToInitialize()
 
 void PlayerController::Update(GameObject* scene, GameState* state)
 {
-    _CRT_UNUSED(scene);
-    _CRT_UNUSED(state);
-
     currentState->Execute();
-    // int movex = 0, movez = 0;
-    // if (IsKeyDown(KEY_A))
-    // {
-    //     movex -= 1;
-    // }
-    // if (IsKeyDown(KEY_D))
-    // {
-    //     movex += 1;
-    // }
-    // if (IsKeyDown(KEY_W))
-    // {
-    //     movez -= 1;
-    // }
-    // if (IsKeyDown(KEY_S))
-    // {
-    //     movez += 1;
-    // }
-
-    // float dtime = GetFrameTime();
-    // Vector3 tempMove = this->transform.translation;
-    // this->transform.translation = {tempMove.x + movex * dtime, 0.0f, tempMove.z + movez * dtime};
 }
 
 Direction PlayerController::GetInputDirection()
@@ -243,4 +220,10 @@ GridPosition PlayerController::GetTargetPosition(Direction direction)
             return GridPosition();
             break;
     }
+}
+
+void PlayerController::OnDeath(DamageSource damageSource) 
+{
+    UnitController::OnDeath(damageSource);
+    BoardController::Get()->OnPlayerDied();
 }

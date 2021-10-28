@@ -35,12 +35,12 @@ void CameraController::Start(GameObject* scene, GameState* gameState)
     }
 
 }
-void CameraController::Update(GameObject* scene, GameState* gameState) {
-
+void CameraController::Update(GameObject* scene, GameState* gameState)
+{
     // Log Camera Position
     // std::string output = std::to_string(transform.translation.x) + " " + std::to_string(transform.translation.y) + " " +std::to_string(transform.translation.z);
     // LogCustom(0, output.c_str(), nullptr);
-    if(followPosition != target->transform.translation)
+    if(target->active && followPosition != target->transform.translation)
     {
         // LogCustom(0, "Camera is moving", nullptr);
         Vector3 vec1 = target->transform.translation - followPosition;

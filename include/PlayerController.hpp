@@ -15,6 +15,7 @@ public:
     virtual ~PlayerController() = default;
     void Start(GameObject* scene, GameState* state) override;
     void Update(GameObject* scene, GameState* state) override;
+    void OnDeath(DamageSource damageSource) override;
 
 protected:
     void OnFailedToInitialize() override;

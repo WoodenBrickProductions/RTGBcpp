@@ -142,12 +142,6 @@ void GameObject::LoadGameObjectModel(Model& model)
     this->model = &model;
 }
 
-
-void GameObject::SetActive(bool active)
-{
-    this->active = active;
-}
-
 std::string GameObject::ToString()
 {
     return name;

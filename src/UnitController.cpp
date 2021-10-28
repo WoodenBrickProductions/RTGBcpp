@@ -6,17 +6,23 @@
 
 class PausedState : public State
 {
-    void Execute()
+public:
+    PausedState()
+    {
+        name = "Paused state";
+    }
+
+    void Execute() override
     {
         LogCustom(0, "Executing in PausedState", nullptr);
     }
 
-    void Entry(State* oldState)
+    void Entry(State* oldState) override
     {
         LogCustom(0, "Entering PausedState", nullptr);
     }
 
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
         LogCustom(0, "Exiting PausedState", nullptr);
     }
@@ -24,17 +30,20 @@ class PausedState : public State
 
 class IdleState : public State
 {
-    void Execute()
+public:
+    IdleState() {}
+
+    void Execute() override
     {
         LogCustom(0, "Executing in IdleState", nullptr);
     }
 
-    void Entry(State* oldState)
+    void Entry(State* oldState) override
     {
         LogCustom(0, "Entering IdleState", nullptr);
     }
 
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
         LogCustom(0, "Exiting IdleState", nullptr);
     }
@@ -42,17 +51,21 @@ class IdleState : public State
 
 class MovingState : public State
 {
-    void Execute()
+public: 
+    
+    MovingState(){}
+
+    void Execute() override
     {
         LogCustom(0, "Executing in MovingState", nullptr);
     }
 
-    void Entry(State* oldState)
+    void Entry(State* oldState) override
     {
         LogCustom(0, "Entering MovingState", nullptr);
     }
 
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
         LogCustom(0, "Exiting MovingState", nullptr);
     }
@@ -60,17 +73,20 @@ class MovingState : public State
 
 class DisabledState : public State
 {
-    void Execute()
+public:
+    DisabledState() {}
+
+    void Execute() override
     {
 
     }
 
-    void Entry(State* oldState)
+    void Entry(State* oldState) override
     {
 
     }
 
-    void Exit(State* newState)
+    void Exit(State* newState) override
     {
         
     }
@@ -109,6 +125,7 @@ void UnitController::Start(GameObject* scene, GameState* gameState)
     pausedState = new PausedState();
     idleState = new IdleState();
     movingState = new MovingState();
+    disabledState = new DisabledState();
     currentState = pausedState;
     worldScalling = boardController->GetWorldTileSpacing();
     worldMoveStep = unitStats.movementSpeed * worldScalling;
@@ -133,6 +150,8 @@ bool UnitController::GetAttacked(DamageSource damageSource)
 }
 void UnitController::OnDeath(DamageSource damageSource) 
 {
+    currentState = pausedState;
+    active = false;
     occupiedTile->ClearTileObject();
     LogCustom(0, "This unit has been killed", nullptr);
     // TODO: Update UI

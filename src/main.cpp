@@ -48,6 +48,15 @@ PlayerController* gPlayerController;
 std::vector<GameObject*> gGameObjects;
 std::vector<GameObject*> gGameObjectsToBeRemoved;
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper functions
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string ToString(Vector3 vec)
+{
+    return std::to_string(vec.x) + " " + std::to_string(vec.y) + " " + std::to_string(vec.z) + " ";
+}
+
 void InstantiateGameObject(GameObject* gameObject, GameObject* scene, GameState* gameState)
 {
     gGameObjects.push_back(gameObject);
@@ -113,7 +122,7 @@ void UnloadExternalData(Resources& resources)
 {
     LogCustom(0, "Unloading resources...", nullptr);
     UnloadModel(resources.cubeTriangulated);
-    UnloadModel(resources.pit);
+    // UnloadModel(resources.pit);
     UnloadModel(resources.smallCube);
     UnloadModel(resources.smallWall);
     UnloadTexture(resources.placeholderTexture);
@@ -160,7 +169,7 @@ void LoadSystemObjects(Resources& resources)
     gPlayerController->transform.translation = {1, 0, 1};
     gPlayerController->LoadGameObjectModel(resources.cubeTriangulated);
     gPlayerController->baseColor = BLUE;
-    gPlayerController->unitStats.maxHealth = 20;
+    gPlayerController->unitStats.maxHealth = 5;
     BoardController::Get()->player = gPlayerController;
     gScene->AddChild(*gPlayerController);
 
@@ -231,7 +240,11 @@ int main()
 
         for(int i = 0; i < gScene->GetChildCount(); i++)
         {
-            gScene->GetChild(i)->Update(gScene, gGameState); // LLO: I should create two methods for Instantiate and Destroy, declare inside GameObject, implement in main
+            GameObject* gameObject = gScene->GetChild(i);
+            if(gameObject->active)
+            {
+                gScene->GetChild(i)->Update(gScene, gGameState); // LLO: I should create two methods for Instantiate and Destroy, declare inside GameObject, implement in main
+            }
         }
 
         // Draw
@@ -246,7 +259,9 @@ int main()
 
             DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
             DrawText("Player hp: ", 10, 70, 20, DARKGRAY);
-            DrawText(std::to_string(gPlayerController->unitStats.currentHealth).c_str(), 30, 70, 20, RED);
+            DrawText("Camera position: ", 10, 100, 15, DARKGRAY);
+            DrawText(std::to_string(gPlayerController->unitStats.currentHealth).c_str(), 150, 70, 20, RED);
+            DrawText(ToString(gCameraController->transform.translation).c_str(), 150, 100, 15, DARKGRAY);
             DrawFPS(10, 10);
 
         EndDrawing();
